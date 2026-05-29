@@ -18,31 +18,66 @@ const steps = [0, 25, 50, 75, 100];
 
 const impactDocumentation = [
   {
-    action: "Contribution publique augmente",
-    effects: "Économie productive baisse, accompagnement social monte, complexité administrative augmente.",
+    source: "Contribution publique",
+    target: "Économie productive",
+    coefficient: "-0.85",
+    example: "+25 points → -21 points",
   },
   {
-    action: "Accompagnement social augmente",
-    effects: "Contribution publique augmente, économie productive baisse légèrement, administration se complexifie.",
+    source: "Contribution publique",
+    target: "Accompagnement social",
+    coefficient: "+0.55",
+    example: "+25 points → +14 points",
   },
   {
-    action: "Sécurité et justice augmente",
-    effects: "Cadre collectif monte, libertés civiles peuvent reculer si le niveau devient très élevé.",
+    source: "Contribution publique",
+    target: "Simplicité administrative",
+    coefficient: "-0.45",
+    example: "+25 points → -11 points",
   },
   {
-    action: "Libertés civiles augmentent",
-    effects: "Autonomie individuelle monte, contrôle public baisse, économie productive peut être légèrement favorisée.",
+    source: "Contribution publique",
+    target: "Libertés civiles",
+    coefficient: "-0.25",
+    example: "+25 points → -6 points",
   },
   {
-    action: "Économie productive augmente",
-    effects: "Dynamisme économique monte, besoin de contribution publique peut baisser, accompagnement social devient plus ciblé.",
+    source: "Accompagnement social",
+    target: "Contribution publique",
+    coefficient: "+0.50",
+    example: "+25 points → +13 points",
   },
   {
-    action: "Simplicité administrative augmente",
-    effects: "Économie productive monte, lisibilité du système augmente, certains dispositifs publics deviennent moins détaillés.",
+    source: "Accompagnement social",
+    target: "Économie productive",
+    coefficient: "-0.45",
+    example: "+25 points → -11 points",
+  },
+  {
+    source: "Sécurité et justice",
+    target: "Libertés civiles",
+    coefficient: "-0.55",
+    example: "+25 points → -14 points",
+  },
+  {
+    source: "Libertés civiles",
+    target: "Économie productive",
+    coefficient: "+0.25",
+    example: "+25 points → +6 points",
+  },
+  {
+    source: "Économie productive",
+    target: "Contribution publique",
+    coefficient: "-0.35",
+    example: "+25 points → -9 points",
+  },
+  {
+    source: "Simplicité administrative",
+    target: "Économie productive",
+    coefficient: "+0.55",
+    example: "+25 points → +14 points",
   },
 ];
-
 const initialCategories = [
   {
     id: "market",
@@ -442,25 +477,30 @@ function updateSub(categoryId: string, subId: string, newValue: number) {
 
               <div className="mt-6 overflow-hidden rounded-[6px] border border-neutral-200">
                 <table className="w-full border-collapse text-left text-sm">
-                  <thead className="bg-neutral-100 text-neutral-600">
-                    <tr>
-                      <th className="p-3 font-medium">Quand ce paramètre augmente</th>
-                      <th className="p-3 font-medium">Effets simulés</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {impactDocumentation.map((row) => (
-                      <tr key={row.action} className="border-t border-neutral-200">
-                        <td className="p-3 font-medium">{row.action}</td>
-                        <td className="p-3 text-neutral-600">{row.effects}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+  <thead className="bg-neutral-100 text-neutral-600">
+    <tr>
+      <th className="p-3 font-medium">Paramètre modifié</th>
+      <th className="p-3 font-medium">Paramètre impacté</th>
+      <th className="p-3 font-medium">Coefficient</th>
+      <th className="p-3 font-medium">Exemple</th>
+    </tr>
+  </thead>
+  <tbody>
+    {impactDocumentation.map((row) => (
+      <tr key={`${row.source}-${row.target}`} className="border-t border-neutral-200">
+        <td className="p-3 font-medium">{row.source}</td>
+        <td className="p-3 text-neutral-600">{row.target}</td>
+        <td className="p-3 font-mono text-neutral-900">{row.coefficient}</td>
+        <td className="p-3 text-neutral-600">{row.example}</td>
+      </tr>
+    ))}
+  </tbody>
+</table>
               </div>
 
               <div className="mt-6 rounded-[6px] bg-neutral-100 p-4 text-sm text-neutral-700">
-                Cette expérience sert surtout à rappeler une chose simple : chaque décision politique est un arbitrage. Elle peut améliorer un aspect du système tout en fragilisant autre chose. Les modèles qui promettent un équilibre parfait doivent donc être regardés avec prudence. Choisir une direction politique, c’est accepter des priorités, des limites et des coûts.
+                Cette expérience sert surtout à rappeler que chaque décision politique est un arbitrage. Elle peut améliorer un aspect du système tout en fragilisant autre chose. Les modèles qui promettent un équilibre parfait doivent donc être regardés avec prudence. Choisir une direction politique, c’est accepter des priorités, des limites et des coûts. Pour toute suggestion d'amélioration de la méthode de calcul, veuillez nous envoyer un email à civis.simulation@gmail.com.
+
               </div>
             </Dialog.Content>
           </Dialog.Portal>
