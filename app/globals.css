@@ -1,4 +1,46 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-:root{color-scheme:light} body{margin:0;background:#f7f7f4;color:#171717} *{box-sizing:border-box}.noise{position:absolute;inset:0;opacity:.08;background-image:radial-gradient(#fff 1px,transparent 1px);background-size:18px 18px;mask-image:linear-gradient(to bottom,#000,transparent)}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: #f6f6f3;
+}
+
+@keyframes slideDown {
+  from {
+    height: 0;
+    opacity: 0;
+  }
+  to {
+    height: var(--radix-accordion-content-height);
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    height: var(--radix-accordion-content-height);
+    opacity: 1;
+  }
+  to {
+    height: 0;
+    opacity: 0;
+  }
+}
+
+.animate-slideDown {
+  animation: slideDown 220ms ease-out;
+}
+
+.animate-slideUp {
+  animation: slideUp 180ms ease-out;
+}
