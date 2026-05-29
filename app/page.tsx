@@ -82,31 +82,31 @@ const impactDocumentation = [
 
 const countryModels = [
   {
-    id: "france",
-    name: "France",
-    flag: "fr",
-    values: {
-      business: 50,
-      competition: 50,
-      investment: 50,
-      incomeTax: 75,
-      companyTax: 75,
-      localTax: 70,
-      health: 85,
-      housing: 70,
-      unemployment: 75,
-      retirement: 85,
-      police: 65,
-      sentences: 55,
-      justiceSpeed: 35,
-      speech: 70,
-      privacy: 65,
-      association: 75,
-      paperwork: 35,
-      rules: 35,
-      speed: 30,
-    },
+  id: "france",
+  name: "France",
+  flag: "fr",
+  values: {
+    business: 40,
+    competition: 35,
+    investment: 35,
+    incomeTax: 75,
+    companyTax: 75,
+    localTax: 70,
+    health: 85,
+    housing: 70,
+    unemployment: 75,
+    retirement: 85,
+    police: 65,
+    sentences: 55,
+    justiceSpeed: 35,
+    speech: 70,
+    privacy: 65,
+    association: 75,
+    paperwork: 35,
+    rules: 35,
+    speed: 30,
   },
+},
   {
     id: "switzerland",
     name: "Suisse",
@@ -428,21 +428,220 @@ export default function Home() {
   }, [radarData]);
 
 
+function applySystemCaps(
+  next: typeof initialCategories,
+  categoryId: string,
+  newValue: number
+) {
+  return next.map((cat) => {
+    const taxScore = average(
+      next.find((c) => c.id === "tax")?.subs.map((s) => s.value) ?? [50]
+    );
+
+    const supportScore = average(
+      next.find((c) => c.id === "support")?.subs.map((s) => s.value) ?? [50]
+    );
+
+    const securityScore = average(
+      next.find((c) => c.id === "security")?.subs.map((s) => s.value) ?? [50]
+    );
+
+    const isTaxExtreme = categoryId === "tax" && newValue >= 75;
+    const isTaxMax = categoryId === "tax" && newValue >= 100;
+
+    if ((isTaxMax || taxScore >= 90) && cat.id === "market") {
+      return {
+        ...cat,
+        subs: cat.subs.map((sub) => ({
+          ...sub,
+          value: Math.min(sub.value, sub.id === "competition" ? 20 : 25),
+        })),
+      };
+    }
+
+    if ((isTaxExtreme || taxScore >= 75) && cat.id === "market") {
+      return {
+        ...cat,
+        subs: cat.subs.map((sub) => ({
+          ...sub,
+          value: Math.min(sub.value, sub.id === "competition" ? 35 : 40),
+        })),
+      };
+    }
+
+    if ((isTaxExtreme || taxScore >= 75) && cat.id === "admin") {
+      return {
+        ...cat,
+        subs: cat.subs.map((sub) => ({
+          ...sub,
+          value: Math.min(sub.value, 45),
+        })),
+      };
+    }
+
+    if ((isTaxExtreme || taxScore >= 75) && cat.id === "freedoms") {
+      return {
+        ...cat,
+        subs: cat.subs.map((sub) => ({
+          ...sub,
+          value: Math.min(sub.value, 55),
+        })),
+      };
+    }
+
+    if (supportScore >= 75 && cat.id === "tax") {
+      return {
+        ...cat,
+        subs: cat.subs.map((sub) => ({
+          ...sub,
+          value: Math.max(sub.value, 65),
+        })),
+      };
+    }
+
+    if (securityScore >= 75 && cat.id === "freedoms") {
+      return {
+        ...cat,
+        subs: cat.subs.map((sub) => ({
+          ...sub,
+          value: Math.min(sub.value, 45),
+        })),
+      };
+    }
+
+    return cat;
+  });
+}
+
+
+
+
+function applyImpactToCategories(
+  currentCategories: typeof initialCategories,
+  categoryId: string,
+  subId: string,
+  newValue: number,
+  delta: number
+) {
+  const impactMap: Record<string, Record<string, number>> = {
+    tax: {
+      market: -1.25,
+      admin: -0.65,
+      support: 0.65,
+      security: 0.15,
+      freedoms: -0.35,
+    },
+    support: {
+      tax: 0.7,
+      admin: -0.45,
+      market: -0.65,
+      security: 0.1,
+      freedoms: -0.15,
+    },
+    security: {
+      freedoms: -0.75,
+      admin: -0.25,
+      tax: 0.2,
+    },
+    freedoms: {
+      security: -0.3,
+      market: 0.3,
+      admin: 0.2,
+    },
+    market: {
+      tax: -0.45,
+      support: -0.35,
+      admin: 0.4,
+      freedoms: 0.2,
+    },
+    admin: {
+      market: 0.75,
+      support: -0.35,
+      security: 0.2,
+      tax: -0.3,
+    },
+  };
+
+  const next = currentCategories.map((cat) => ({
+    ...cat,
+    subs: cat.subs.map((sub) => {
+      if (cat.id === categoryId && sub.id === subId) {
+        return { ...sub, value: newValue };
+      }
+
+      const influence = impactMap[categoryId]?.[cat.id] ?? 0;
+      if (influence === 0) return sub;
+
+      return {
+        ...sub,
+        value: clamp(Math.round(sub.value + delta * influence)),
+      };
+    }),
+  }));
+
+  return applySystemCaps(next, categoryId, newValue);
+}
+
+
+
+
 function applyCountryModel(countryId: string) {
   const model = countryModels.find((country) => country.id === countryId);
   if (!model) return;
 
   setSelectedCountryId(countryId);
 
-  setCategories((prev) =>
-    prev.map((cat) => ({
-      ...cat,
-      subs: cat.subs.map((sub) => ({
-        ...sub,
-        value: model.values[sub.id as keyof typeof model.values] ?? sub.value,
-      })),
-    }))
-  );
+  let nextCategories = structuredClone(initialCategories);
+
+  const orderedEntries = Object.entries(model.values).sort(([a], [b]) => {
+    const priority = [
+      "incomeTax",
+      "companyTax",
+      "localTax",
+      "health",
+      "housing",
+      "unemployment",
+      "retirement",
+      "police",
+      "sentences",
+      "justiceSpeed",
+      "speech",
+      "privacy",
+      "association",
+      "paperwork",
+      "rules",
+      "speed",
+      "business",
+      "competition",
+      "investment",
+    ];
+
+    return priority.indexOf(a) - priority.indexOf(b);
+  });
+
+  orderedEntries.forEach(([subId, value]) => {
+    const category = nextCategories.find((cat) =>
+      cat.subs.some((sub) => sub.id === subId)
+    );
+
+    if (!category) return;
+
+    const sub = category.subs.find((s) => s.id === subId);
+    if (!sub) return;
+
+    const oldValue = sub.value;
+    const delta = value - oldValue;
+
+    nextCategories = applyImpactToCategories(
+      nextCategories,
+      category.id,
+      subId,
+      value,
+      delta
+    );
+  });
+
+  setCategories(nextCategories);
 }
   
   function updateParent(categoryId: string, newValue: number) {
@@ -466,141 +665,7 @@ function updateSub(categoryId: string, subId: string, newValue: number) {
     const oldValue = currentSub?.value ?? newValue;
     const delta = newValue - oldValue;
 
-    const impactMap: Record<string, Record<string, number>> = {
-      tax: {
-        market: -1.25,
-        admin: -0.65,
-        support: 0.65,
-        security: 0.15,
-        freedoms: -0.35,
-      },
-      support: {
-        tax: 0.7,
-        admin: -0.45,
-        market: -0.65,
-        security: 0.1,
-        freedoms: -0.15,
-      },
-      security: {
-        freedoms: -0.75,
-        admin: -0.25,
-        tax: 0.2,
-      },
-      freedoms: {
-        security: -0.3,
-        market: 0.3,
-        admin: 0.2,
-      },
-      market: {
-        tax: -0.45,
-        support: -0.35,
-        admin: 0.4,
-        freedoms: 0.2,
-      },
-      admin: {
-        market: 0.75,
-        support: -0.35,
-        security: 0.2,
-        tax: -0.3,
-      },
-    };
-
-    const next = prev.map((cat) => ({
-      ...cat,
-      subs: cat.subs.map((sub) => {
-        if (cat.id === categoryId && sub.id === subId) {
-          return { ...sub, value: newValue };
-        }
-
-        const influence = impactMap[categoryId]?.[cat.id] ?? 0;
-
-        if (influence === 0) return sub;
-
-        return {
-          ...sub,
-          value: clamp(Math.round(sub.value + delta * influence)),
-        };
-      }),
-    }));
-
-    return next.map((cat) => {
-      const taxScore = average(
-        next.find((c) => c.id === "tax")?.subs.map((s) => s.value) ?? [50]
-      );
-
-      const supportScore = average(
-        next.find((c) => c.id === "support")?.subs.map((s) => s.value) ?? [50]
-      );
-
-      const securityScore = average(
-        next.find((c) => c.id === "security")?.subs.map((s) => s.value) ?? [50]
-      );
-
-      const isTaxExtreme = categoryId === "tax" && newValue >= 75;
-      const isTaxMax = categoryId === "tax" && newValue >= 100;
-
-      if ((isTaxMax || taxScore >= 90) && cat.id === "market") {
-        return {
-          ...cat,
-          subs: cat.subs.map((sub) => ({
-            ...sub,
-            value: Math.min(sub.value, sub.id === "competition" ? 20 : 25),
-          })),
-        };
-      }
-
-      if ((isTaxExtreme || taxScore >= 75) && cat.id === "market") {
-        return {
-          ...cat,
-          subs: cat.subs.map((sub) => ({
-            ...sub,
-            value: Math.min(sub.value, sub.id === "competition" ? 35 : 40),
-          })),
-        };
-      }
-
-      if ((isTaxExtreme || taxScore >= 75) && cat.id === "admin") {
-        return {
-          ...cat,
-          subs: cat.subs.map((sub) => ({
-            ...sub,
-            value: Math.min(sub.value, 45),
-          })),
-        };
-      }
-
-      if ((isTaxExtreme || taxScore >= 75) && cat.id === "freedoms") {
-        return {
-          ...cat,
-          subs: cat.subs.map((sub) => ({
-            ...sub,
-            value: Math.min(sub.value, 55),
-          })),
-        };
-      }
-
-      if (supportScore >= 75 && cat.id === "tax") {
-        return {
-          ...cat,
-          subs: cat.subs.map((sub) => ({
-            ...sub,
-            value: Math.max(sub.value, 65),
-          })),
-        };
-      }
-
-      if (securityScore >= 75 && cat.id === "freedoms") {
-        return {
-          ...cat,
-          subs: cat.subs.map((sub) => ({
-            ...sub,
-            value: Math.min(sub.value, 45),
-          })),
-        };
-      }
-
-      return cat;
-    });
+    return applyImpactToCategories(prev, categoryId, subId, newValue, delta);
   });
 }
 
@@ -615,7 +680,7 @@ function updateSub(categoryId: string, subId: string, newValue: number) {
   }
 
   return (
-    <main className="min-h-screen bg-[#f6f6f3] text-neutral-950">
+    <main className="min-h-screen bg-[#fff] text-neutral-950">
       {screen === "intro" && (
         <section className="mx-auto flex min-h-screen max-w-5xl flex-col items-center justify-center px-6 text-center">
           <motion.div
