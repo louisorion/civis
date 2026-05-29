@@ -1,10 +1,9 @@
 "use client";
 
-import * as Accordion from "@radix-ui/react-accordion";
 import * as Dialog from "@radix-ui/react-dialog";
 import * as Slider from "@radix-ui/react-slider";
 import { motion } from "framer-motion";
-import { ChevronDown, Download, Info } from "lucide-react";
+import { Download, Info } from "lucide-react";
 import { toPng } from "html-to-image";
 import { useMemo, useRef, useState } from "react";
 import {
@@ -106,10 +105,10 @@ function StepSlider({
         onValueChange={([v]) => onChange(v)}
         className="relative flex h-5 w-full touch-none items-center"
       >
-        <Slider.Track className="relative h-2 w-full rounded-[9px] bg-neutral-200">
-          <Slider.Range className="absolute h-full rounded-[9px] bg-black" />
+        <Slider.Track className="relative h-2 w-full rounded-[6px] bg-neutral-200">
+          <Slider.Range className="absolute h-full rounded-[6px] bg-black" />
         </Slider.Track>
-        <Slider.Thumb className="block h-5 w-5 rounded-[9px] bg-black shadow-md outline-none transition-transform hover:scale-110 focus:ring-4 focus:ring-black/10" />
+        <Slider.Thumb className="block h-5 w-5 rounded-[6px] bg-black shadow-md outline-none transition-transform hover:scale-110 focus:ring-4 focus:ring-black/10" />
       </Slider.Root>
 
       <div className="relative flex justify-between px-1">
@@ -179,19 +178,66 @@ export default function Home() {
     );
   }
 
-  function updateSub(categoryId: string, subId: string, newValue: number) {
-    setCategories((prev) =>
-      prev.map((cat) => {
-        if (cat.id !== categoryId) return cat;
+function updateSub(categoryId: string, subId: string, newValue: number) {
+  setCategories((prev) => {
+    const currentCategory = prev.find((cat) => cat.id === categoryId);
+    const currentSub = currentCategory?.subs.find((sub) => sub.id === subId);
+    const oldValue = currentSub?.value ?? newValue;
+    const delta = newValue - oldValue;
+
+    return prev.map((cat) => ({
+      ...cat,
+      subs: cat.subs.map((sub) => {
+        if (cat.id === categoryId && sub.id === subId) {
+          return { ...sub, value: newValue };
+        }
+
+        let influence = 0;
+
+        if (categoryId === "tax") {
+          if (cat.id === "support") influence = 0.35;
+          if (cat.id === "market") influence = -0.25;
+          if (cat.id === "admin") influence = -0.15;
+        }
+
+        if (categoryId === "support") {
+          if (cat.id === "tax") influence = 0.25;
+          if (cat.id === "admin") influence = -0.15;
+          if (cat.id === "market") influence = -0.1;
+        }
+
+        if (categoryId === "security") {
+          if (cat.id === "freedoms") influence = -0.2;
+          if (cat.id === "admin") influence = -0.1;
+        }
+
+        if (categoryId === "freedoms") {
+          if (cat.id === "security") influence = -0.15;
+          if (cat.id === "market") influence = 0.15;
+        }
+
+        if (categoryId === "market") {
+          if (cat.id === "tax") influence = -0.15;
+          if (cat.id === "support") influence = -0.1;
+          if (cat.id === "admin") influence = 0.1;
+        }
+
+        if (categoryId === "admin") {
+          if (cat.id === "market") influence = 0.2;
+          if (cat.id === "support") influence = -0.1;
+          if (cat.id === "security") influence = 0.1;
+        }
+
+        if (influence === 0) return sub;
+
         return {
-          ...cat,
-          subs: cat.subs.map((sub) =>
-            sub.id === subId ? { ...sub, value: newValue } : sub
-          ),
+          ...sub,
+          value: clamp(Math.round(sub.value + delta * influence)),
         };
-      })
-    );
-  }
+      }),
+    }));
+  });
+}
 
   async function downloadCard() {
     if (!cardRef.current) return;
@@ -227,19 +273,19 @@ export default function Home() {
             <div className="flex items-center justify-center gap-3">
               <button
                 onClick={() => setScreen("game")}
-                className="rounded-[9px] bg-black px-6 py-3 text-white transition hover:bg-neutral-800"
+                className="rounded-[6px] bg-black px-6 py-3 text-white transition hover:bg-neutral-800"
               >
                 Commencer
               </button>
 
               <Dialog.Root>
-                <Dialog.Trigger className="inline-flex items-center gap-2 rounded-[9px] border border-neutral-300 bg-white px-5 py-3 text-neutral-800 transition hover:bg-neutral-100">
+                <Dialog.Trigger className="inline-flex items-center gap-2 rounded-[6px] border border-neutral-300 bg-white px-5 py-3 text-neutral-800 transition hover:bg-neutral-100">
                   <Info size={16} />
                   Comprendre
                 </Dialog.Trigger>
                 <Dialog.Portal>
                   <Dialog.Overlay className="fixed inset-0 bg-black/30" />
-                  <Dialog.Content className="fixed left-1/2 top-1/2 w-[90vw] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-[9px] bg-white p-6 shadow-xl">
+                  <Dialog.Content className="fixed left-1/2 top-1/2 w-[90vw] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-[6px] bg-white p-6 shadow-xl">
                     <Dialog.Title className="text-xl font-semibold">
                       Comprendre Civis
                     </Dialog.Title>
@@ -257,79 +303,58 @@ export default function Home() {
         </section>
       )}
 
-      {screen === "game" && (
-        <section className="mx-auto max-w-4xl px-6 py-10">
-          <div className="mb-8 flex items-end justify-between gap-6">
-            <div>
-              <p className="text-sm uppercase tracking-[0.3em] text-neutral-500">
-                CIVIS
-              </p>
-              <h1 className="mt-3 text-4xl font-semibold tracking-tight">
-                Construisez votre modèle
-              </h1>
+{screen === "game" && (
+  <section className="mx-auto max-w-6xl px-6 py-10">
+    <div className="mb-8 flex items-end justify-between gap-6">
+      <div>
+        <p className="text-sm uppercase tracking-[0.3em] text-neutral-500">
+          CIVIS
+        </p>
+        <h1 className="mt-3 text-4xl font-semibold tracking-tight">
+          Ajustez les paramètres
+        </h1>
+        <p className="mt-3 max-w-xl text-neutral-600">
+          Chaque curseur peut influencer d’autres paramètres. L’équilibre se
+          construit par répercussion.
+        </p>
+      </div>
+
+      <button
+        onClick={() => setScreen("result")}
+        className="rounded-[6px] bg-black px-5 py-3 text-white transition hover:bg-neutral-800"
+      >
+        Voir le résultat
+      </button>
+    </div>
+
+    <div className="grid gap-3 md:grid-cols-2">
+      {categories.flatMap((cat) =>
+        cat.subs.map((sub) => (
+          <motion.div
+            key={sub.id}
+            layout
+            className="rounded-[6px] border border-neutral-200 bg-white p-4 shadow-sm"
+          >
+            <div className="mb-4 flex items-start justify-between gap-4">
+              <div>
+                <h2 className="text-sm font-semibold">{sub.name}</h2>
+                <p className="mt-1 text-xs text-neutral-500">{cat.name}</p>
+              </div>
+              <span className="rounded-[6px] bg-neutral-100 px-2 py-1 text-xs font-medium text-neutral-700">
+                {sub.value}
+              </span>
             </div>
-            <button
-              onClick={() => setScreen("result")}
-              className="rounded-[9px] bg-black px-5 py-3 text-white transition hover:bg-neutral-800"
-            >
-              Voir le résultat
-            </button>
-          </div>
 
-          <Accordion.Root type="multiple" className="space-y-3">
-            {categories.map((cat) => {
-              const parentValue = average(cat.subs.map((s) => s.value));
-
-              return (
-                <Accordion.Item
-                  key={cat.id}
-                  value={cat.id}
-                  className="rounded-[9px] border border-neutral-200 bg-white p-5 shadow-sm"
-                >
-                  <div className="grid gap-5 md:grid-cols-[1fr_320px_32px] md:items-center">
-                    <div>
-                      <h2 className="text-lg font-semibold">{cat.name}</h2>
-                      <p className="mt-1 text-sm text-neutral-500">
-                        {cat.description}
-                      </p>
-                    </div>
-
-                    <StepSlider
-                      value={parentValue}
-                      onChange={(v) => updateParent(cat.id, v)}
-                    />
-
-                    <Accordion.Trigger className="group flex h-8 w-8 items-center justify-center rounded-[9px] border border-neutral-200 transition hover:bg-neutral-100">
-                      <ChevronDown
-                        size={18}
-                        className="transition-transform group-data-[state=open]:rotate-180"
-                      />
-                    </Accordion.Trigger>
-                  </div>
-
-                  <Accordion.Content className="overflow-hidden data-[state=closed]:animate-slideUp data-[state=open]:animate-slideDown">
-                    <div className="mt-5 space-y-5 border-t border-neutral-100 pt-5">
-                      {cat.subs.map((sub) => (
-                        <div
-                          key={sub.id}
-                          className="grid gap-3 md:grid-cols-[1fr_320px]"
-                        >
-                          <div className="text-sm font-medium">{sub.name}</div>
-                          <StepSlider
-                            value={sub.value}
-                            onChange={(v) => updateSub(cat.id, sub.id, v)}
-                          />
-                        </div>
-                      ))}
-                    </div>
-                  </Accordion.Content>
-                </Accordion.Item>
-              );
-            })}
-          </Accordion.Root>
-        </section>
+            <StepSlider
+              value={sub.value}
+              onChange={(v) => updateSub(cat.id, sub.id, v)}
+            />
+          </motion.div>
+        ))
       )}
-
+    </div>
+  </section>
+)}
       {screen === "result" && (
         <section className="mx-auto max-w-6xl px-6 py-10">
           <div className="mb-8 flex items-end justify-between gap-6">
@@ -343,14 +368,14 @@ export default function Home() {
             </div>
             <button
               onClick={() => setScreen("game")}
-              className="rounded-[9px] border border-neutral-300 bg-white px-5 py-3 transition hover:bg-neutral-100"
+              className="rounded-[6px] border border-neutral-300 bg-white px-5 py-3 transition hover:bg-neutral-100"
             >
               Modifier
             </button>
           </div>
 
           <div className="grid gap-6 lg:grid-cols-[1fr_420px]">
-            <div className="rounded-[9px] border border-neutral-200 bg-white p-6 shadow-sm">
+            <div className="rounded-[6px] border border-neutral-200 bg-white p-6 shadow-sm">
               <h2 className="text-xl font-semibold">Radar d’équilibre</h2>
               <div className="mt-6 h-[430px]">
                 <ResponsiveContainer width="100%" height="100%">
@@ -366,7 +391,7 @@ export default function Home() {
             <div className="space-y-4">
               <div
                 ref={cardRef}
-                className="rounded-[9px] bg-gradient-to-br from-neutral-950 via-neutral-800 to-neutral-600 p-8 text-white shadow-xl"
+                className="rounded-[6px] bg-gradient-to-br from-neutral-950 via-neutral-800 to-neutral-600 p-8 text-white shadow-xl"
               >
                 <p className="text-sm uppercase tracking-[0.35em] text-white/60">
                   CIVIS
@@ -389,7 +414,7 @@ export default function Home() {
 
               <button
                 onClick={downloadCard}
-                className="inline-flex w-full items-center justify-center gap-2 rounded-[9px] bg-black px-5 py-3 text-white transition hover:bg-neutral-800"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-[6px] bg-black px-5 py-3 text-white transition hover:bg-neutral-800"
               >
                 <Download size={18} />
                 Télécharger la carte
