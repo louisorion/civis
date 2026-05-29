@@ -16,97 +16,154 @@ import {
 
 const steps = [0, 25, 50, 75, 100];
 
+const initialCategories = [
+  {
+    id: "market",
+    name: "Économie productive",
+    description: "Entreprise, concurrence, investissement, création de valeur.",
+    subs: [
+      { id: "business", name: "Liberté d’entreprendre", value: 60 },
+      { id: "competition", name: "Concurrence", value: 55 },
+      { id: "investment", name: "Investissement privé", value: 60 },
+    ],
+  },
+  {
+    id: "tax",
+    name: "Contribution publique",
+    description: "Niveau de prélèvement et financement collectif.",
+    subs: [
+      { id: "incomeTax", name: "Impôt sur le revenu", value: 50 },
+      { id: "companyTax", name: "Fiscalité des entreprises", value: 50 },
+      { id: "localTax", name: "Fiscalité locale", value: 50 },
+    ],
+  },
+  {
+    id: "support",
+    name: "Accompagnement social",
+    description: "Protection, accès aux soins, retraites, chômage et logement.",
+    subs: [
+      { id: "health", name: "Santé", value: 65 },
+      { id: "housing", name: "Logement", value: 45 },
+      { id: "unemployment", name: "Chômage", value: 50 },
+      { id: "retirement", name: "Retraites", value: 55 },
+    ],
+  },
+  {
+    id: "security",
+    name: "Sécurité et justice",
+    description: "Ordre public, sanctions, rapidité judiciaire.",
+    subs: [
+      { id: "police", name: "Présence policière", value: 60 },
+      { id: "sentences", name: "Fermeté des sanctions", value: 55 },
+      { id: "justiceSpeed", name: "Rapidité judiciaire", value: 50 },
+    ],
+  },
+  {
+    id: "freedoms",
+    name: "Libertés civiles",
+    description: "Expression, vie privée, association.",
+    subs: [
+      { id: "speech", name: "Liberté d’expression", value: 75 },
+      { id: "privacy", name: "Vie privée", value: 65 },
+      { id: "association", name: "Liberté d’association", value: 70 },
+    ],
+  },
+  {
+    id: "admin",
+    name: "Simplicité administrative",
+    description: "Lisibilité des règles, rapidité, faible charge réglementaire.",
+    subs: [
+      { id: "paperwork", name: "Démarches", value: 60 },
+      { id: "rules", name: "Lisibilité des règles", value: 55 },
+      { id: "speed", name: "Rapidité administrative", value: 50 },
+    ],
+  },
+];
+
 const impactDocumentation = [
   {
     source: "Contribution publique",
     target: "Économie productive",
-    coefficient: "-0.85",
-    example: "+25 points → -21 points",
-  },
-  {
-    source: "Contribution publique",
-    target: "Accompagnement social",
-    coefficient: "+0.55",
-    example: "+25 points → +14 points",
+    coefficient: "-1.25",
+    example: "+25 points → -31 points",
   },
   {
     source: "Contribution publique",
     target: "Simplicité administrative",
-    coefficient: "-0.45",
-    example: "+25 points → -11 points",
+    coefficient: "-0.65",
+    example: "+25 points → -16 points",
   },
   {
     source: "Contribution publique",
-    target: "Libertés civiles",
-    coefficient: "-0.25",
-    example: "+25 points → -6 points",
+    target: "Accompagnement social",
+    coefficient: "+0.65",
+    example: "+25 points → +16 points",
   },
   {
     source: "Accompagnement social",
     target: "Contribution publique",
-    coefficient: "+0.50",
-    example: "+25 points → +13 points",
+    coefficient: "+0.70",
+    example: "+25 points → +18 points",
   },
   {
     source: "Accompagnement social",
     target: "Économie productive",
-    coefficient: "-0.45",
-    example: "+25 points → -11 points",
+    coefficient: "-0.65",
+    example: "+25 points → -16 points",
   },
   {
     source: "Sécurité et justice",
     target: "Libertés civiles",
-    coefficient: "-0.55",
-    example: "+25 points → -14 points",
+    coefficient: "-0.75",
+    example: "+25 points → -19 points",
   },
   {
     source: "Libertés civiles",
     target: "Économie productive",
-    coefficient: "+0.25",
-    example: "+25 points → +6 points",
+    coefficient: "+0.30",
+    example: "+25 points → +8 points",
   },
   {
     source: "Économie productive",
     target: "Contribution publique",
-    coefficient: "-0.35",
-    example: "+25 points → -9 points",
+    coefficient: "-0.45",
+    example: "+25 points → -11 points",
   },
   {
     source: "Simplicité administrative",
     target: "Économie productive",
-    coefficient: "+0.55",
-    example: "+25 points → +14 points",
+    coefficient: "+0.75",
+    example: "+25 points → +19 points",
   },
 ];
 
-
 const countryModels = [
   {
-  id: "france",
-  name: "France",
-  flag: "fr",
-  values: {
-    business: 40,
-    competition: 35,
-    investment: 35,
-    incomeTax: 75,
-    companyTax: 75,
-    localTax: 70,
-    health: 85,
-    housing: 70,
-    unemployment: 75,
-    retirement: 85,
-    police: 65,
-    sentences: 55,
-    justiceSpeed: 35,
-    speech: 70,
-    privacy: 65,
-    association: 75,
-    paperwork: 35,
-    rules: 35,
-    speed: 30,
+    id: "france",
+    name: "France",
+    flag: "fr",
+    values: {
+      business: 40,
+      competition: 35,
+      investment: 35,
+      incomeTax: 75,
+      companyTax: 75,
+      localTax: 70,
+      health: 85,
+      housing: 70,
+      unemployment: 75,
+      retirement: 85,
+      police: 65,
+      sentences: 55,
+      justiceSpeed: 35,
+      speech: 70,
+      privacy: 65,
+      association: 75,
+      paperwork: 35,
+      rules: 35,
+      speed: 30,
+    },
   },
-},
   {
     id: "switzerland",
     name: "Suisse",
@@ -138,9 +195,9 @@ const countryModels = [
     name: "Suède",
     flag: "se",
     values: {
-      business: 75,
-      competition: 75,
-      investment: 70,
+      business: 70,
+      competition: 70,
+      investment: 65,
       incomeTax: 80,
       companyTax: 60,
       localTax: 75,
@@ -190,9 +247,9 @@ const countryModels = [
     name: "Finlande",
     flag: "fi",
     values: {
-      business: 75,
-      competition: 75,
-      investment: 70,
+      business: 70,
+      competition: 70,
+      investment: 65,
       incomeTax: 80,
       companyTax: 60,
       localTax: 75,
@@ -213,8 +270,20 @@ const countryModels = [
   },
 ];
 
-function getCountryDistance(categories: typeof initialCategories, model: typeof countryModels[number]) {
+type Category = typeof initialCategories[number];
+type Country = typeof countryModels[number];
+
+function average(values: number[]) {
+  return Math.round(values.reduce((a, b) => a + b, 0) / values.length);
+}
+
+function clamp(value: number) {
+  return Math.max(0, Math.min(100, value));
+}
+
+function getCountryDistance(categories: typeof initialCategories, model: Country) {
   const currentValues = categories.flatMap((cat) => cat.subs);
+
   const total = currentValues.reduce((sum, sub) => {
     const modelValue = model.values[sub.id as keyof typeof model.values] ?? 50;
     return sum + Math.abs(sub.value - modelValue);
@@ -251,7 +320,7 @@ function FlagIcon({ code }: { code: string }) {
       )}
 
       {code === "ch" && (
-        <span className="relative block h-full w-full bg-red-600">
+        <span className="relative mx-auto block h-4 w-4 bg-red-600">
           <span className="absolute left-1/2 top-1/2 h-2.5 w-1 -translate-x-1/2 -translate-y-1/2 bg-white" />
           <span className="absolute left-1/2 top-1/2 h-1 w-3 -translate-x-1/2 -translate-y-1/2 bg-white" />
         </span>
@@ -272,79 +341,6 @@ function FlagIcon({ code }: { code: string }) {
       )}
     </span>
   );
-}
-
-
-const initialCategories = [
-  {
-    id: "market",
-    name: "Économie productive",
-    description: "Entreprise, concurrence, investissement, création de valeur.",
-    subs: [
-      { id: "business", name: "Liberté d’entreprendre", value: 60 },
-      { id: "competition", name: "Concurrence", value: 55 },
-      { id: "investment", name: "Investissement privé", value: 60 },
-    ],
-  },
-  {
-    id: "tax",
-    name: "Contribution publique",
-    description: "Niveau de prélèvement et financement collectif.",
-    subs: [
-      { id: "incomeTax", name: "Impôt sur le revenu", value: 50 },
-      { id: "companyTax", name: "Fiscalité des entreprises", value: 50 },
-      { id: "localTax", name: "Fiscalité locale", value: 50 },
-    ],
-  },
-  {
-    id: "support",
-    name: "Accompagnement social",
-    description: "Aides, protection, accès aux ressources essentielles.",
-    subs: [
-      { id: "health", name: "Santé", value: 65 },
-      { id: "housing", name: "Logement", value: 45 },
-      { id: "unemployment", name: "Chômage", value: 50 },
-      { id: "retirement", name: "Retraites", value: 55 },
-    ],
-  },
-  {
-    id: "security",
-    name: "Sécurité et justice",
-    description: "Sanction, ordre public, protection des personnes.",
-    subs: [
-      { id: "police", name: "Présence policière", value: 60 },
-      { id: "sentences", name: "Fermeté des sanctions", value: 55 },
-      { id: "justiceSpeed", name: "Rapidité judiciaire", value: 50 },
-    ],
-  },
-  {
-    id: "freedoms",
-    name: "Libertés civiles",
-    description: "Expression, vie privée, autonomie individuelle.",
-    subs: [
-      { id: "speech", name: "Liberté d’expression", value: 75 },
-      { id: "privacy", name: "Vie privée", value: 65 },
-      { id: "association", name: "Liberté d’association", value: 70 },
-    ],
-  },
-  {
-    id: "admin",
-    name: "Simplicité administrative",
-    description: "Lisibilité des règles, démarches, charge réglementaire.",
-    subs: [
-      { id: "paperwork", name: "Démarches", value: 60 },
-      { id: "rules", name: "Lisibilité des règles", value: 55 },
-      { id: "speed", name: "Rapidité administrative", value: 50 },
-    ],
-  },
-];
-
-function average(values: number[]) {
-  return Math.round(values.reduce((a, b) => a + b, 0) / values.length);
-}
-
-function clamp(value: number) {
-  return Math.max(0, Math.min(100, value));
 }
 
 function StepSlider({
@@ -387,7 +383,9 @@ function StepSlider({
 export default function Home() {
   const [screen, setScreen] = useState<"intro" | "game" | "result">("intro");
   const [categories, setCategories] = useState(initialCategories);
-  const [selectedCountryId, setSelectedCountryId] = useState<string | null>(null);
+  const [selectedCountryId, setSelectedCountryId] = useState<string | null>(
+    null
+  );
   const cardRef = useRef<HTMLDivElement>(null);
 
   const categoryScores = useMemo(
@@ -405,20 +403,35 @@ export default function Home() {
       categoryScores.find((c) => c.id === id)?.value ?? 50;
 
     return [
-      { subject: "Autonomie", value: average([get("market"), get("freedoms")]) },
-      { subject: "Cadre", value: average([get("security"), get("admin")]) },
+      {
+        subject: "Autonomie",
+        value: average([get("market"), get("freedoms")]),
+      },
+      {
+        subject: "Cadre",
+        value: average([get("security"), get("admin")]),
+      },
       { subject: "Protection", value: get("support") },
       { subject: "Simplicité", value: get("admin") },
       { subject: "Dynamisme", value: get("market") },
-      { subject: "Responsabilité", value: average([get("tax"), get("security")]) },
+      {
+        subject: "Responsabilité",
+        value: average([get("tax"), get("security")]),
+      },
     ];
   }, [categoryScores]);
 
-  const closestCountry = useMemo(() => getClosestCountry(categories), [categories]);
+  const closestCountry = useMemo(
+    () => getClosestCountry(categories),
+    [categories]
+  );
+
   const profileName = useMemo(() => {
-    const autonomy = radarData.find((d) => d.subject === "Autonomie")?.value ?? 50;
+    const autonomy =
+      radarData.find((d) => d.subject === "Autonomie")?.value ?? 50;
     const frame = radarData.find((d) => d.subject === "Cadre")?.value ?? 50;
-    const protection = radarData.find((d) => d.subject === "Protection")?.value ?? 50;
+    const protection =
+      radarData.find((d) => d.subject === "Protection")?.value ?? 50;
 
     if (autonomy >= 70 && frame >= 60) return "Libéral cadré";
     if (protection >= 70 && frame >= 60) return "Protecteur structuré";
@@ -427,260 +440,195 @@ export default function Home() {
     return "Équilibriste pragmatique";
   }, [radarData]);
 
-
-function applySystemCaps(
-  next: typeof initialCategories,
-  categoryId: string,
-  newValue: number
-) {
-  return next.map((cat) => {
-    const taxScore = average(
-      next.find((c) => c.id === "tax")?.subs.map((s) => s.value) ?? [50]
+  function getCategoryAverage(next: Category[], id: string) {
+    return average(
+      next.find((cat) => cat.id === id)?.subs.map((sub) => sub.value) ?? [50]
     );
+  }
 
-    const supportScore = average(
-      next.find((c) => c.id === "support")?.subs.map((s) => s.value) ?? [50]
-    );
-
-    const securityScore = average(
-      next.find((c) => c.id === "security")?.subs.map((s) => s.value) ?? [50]
-    );
+  function applySystemCaps(next: Category[], categoryId: string, newValue: number) {
+    const taxScore = getCategoryAverage(next, "tax");
+    const supportScore = getCategoryAverage(next, "support");
+    const securityScore = getCategoryAverage(next, "security");
 
     const isTaxExtreme = categoryId === "tax" && newValue >= 75;
     const isTaxMax = categoryId === "tax" && newValue >= 100;
 
-    if ((isTaxMax || taxScore >= 90) && cat.id === "market") {
-      return {
-        ...cat,
-        subs: cat.subs.map((sub) => ({
-          ...sub,
-          value: Math.min(sub.value, sub.id === "competition" ? 20 : 25),
-        })),
-      };
-    }
-
-    if ((isTaxExtreme || taxScore >= 75) && cat.id === "market") {
-      return {
-        ...cat,
-        subs: cat.subs.map((sub) => ({
-          ...sub,
-          value: Math.min(sub.value, sub.id === "competition" ? 35 : 40),
-        })),
-      };
-    }
-
-    if ((isTaxExtreme || taxScore >= 75) && cat.id === "admin") {
-      return {
-        ...cat,
-        subs: cat.subs.map((sub) => ({
-          ...sub,
-          value: Math.min(sub.value, 45),
-        })),
-      };
-    }
-
-    if ((isTaxExtreme || taxScore >= 75) && cat.id === "freedoms") {
-      return {
-        ...cat,
-        subs: cat.subs.map((sub) => ({
-          ...sub,
-          value: Math.min(sub.value, 55),
-        })),
-      };
-    }
-
-    if (supportScore >= 75 && cat.id === "tax") {
-      return {
-        ...cat,
-        subs: cat.subs.map((sub) => ({
-          ...sub,
-          value: Math.max(sub.value, 65),
-        })),
-      };
-    }
-
-    if (securityScore >= 75 && cat.id === "freedoms") {
-      return {
-        ...cat,
-        subs: cat.subs.map((sub) => ({
-          ...sub,
-          value: Math.min(sub.value, 45),
-        })),
-      };
-    }
-
-    return cat;
-  });
-}
-
-
-
-
-function applyImpactToCategories(
-  currentCategories: typeof initialCategories,
-  categoryId: string,
-  subId: string,
-  newValue: number,
-  delta: number
-) {
-  const impactMap: Record<string, Record<string, number>> = {
-    tax: {
-      market: -1.25,
-      admin: -0.65,
-      support: 0.65,
-      security: 0.15,
-      freedoms: -0.35,
-    },
-    support: {
-      tax: 0.7,
-      admin: -0.45,
-      market: -0.65,
-      security: 0.1,
-      freedoms: -0.15,
-    },
-    security: {
-      freedoms: -0.75,
-      admin: -0.25,
-      tax: 0.2,
-    },
-    freedoms: {
-      security: -0.3,
-      market: 0.3,
-      admin: 0.2,
-    },
-    market: {
-      tax: -0.45,
-      support: -0.35,
-      admin: 0.4,
-      freedoms: 0.2,
-    },
-    admin: {
-      market: 0.75,
-      support: -0.35,
-      security: 0.2,
-      tax: -0.3,
-    },
-  };
-
-  const next = currentCategories.map((cat) => ({
-    ...cat,
-    subs: cat.subs.map((sub) => {
-      if (cat.id === categoryId && sub.id === subId) {
-        return { ...sub, value: newValue };
-      }
-
-      const influence = impactMap[categoryId]?.[cat.id] ?? 0;
-      if (influence === 0) return sub;
-
-      return {
-        ...sub,
-        value: clamp(Math.round(sub.value + delta * influence)),
-      };
-    }),
-  }));
-
-  return applySystemCaps(next, categoryId, newValue);
-}
-
-
-
-
-function applyCountryModel(countryId: string) {
-  const model = countryModels.find((country) => country.id === countryId);
-  if (!model) return;
-
-  setSelectedCountryId(countryId);
-
-  let nextCategories = structuredClone(initialCategories);
-
-  const orderedEntries = Object.entries(model.values).sort(([a], [b]) => {
-    const priority = [
-      "incomeTax",
-      "companyTax",
-      "localTax",
-      "health",
-      "housing",
-      "unemployment",
-      "retirement",
-      "police",
-      "sentences",
-      "justiceSpeed",
-      "speech",
-      "privacy",
-      "association",
-      "paperwork",
-      "rules",
-      "speed",
-      "business",
-      "competition",
-      "investment",
-    ];
-
-    return priority.indexOf(a) - priority.indexOf(b);
-  });
-
-  orderedEntries.forEach(([subId, value]) => {
-    const category = nextCategories.find((cat) =>
-      cat.subs.some((sub) => sub.id === subId)
-    );
-
-    if (!category) return;
-
-    const sub = category.subs.find((s) => s.id === subId);
-    if (!sub) return;
-
-    const oldValue = sub.value;
-    const delta = value - oldValue;
-
-    nextCategories = applyImpactToCategories(
-      nextCategories,
-      category.id,
-      subId,
-      value,
-      delta
-    );
-  });
-
-  setCategories(nextCategories);
-}
-  
-  function updateParent(categoryId: string, newValue: number) {
-    setCategories((prev) =>
-      prev.map((cat) => {
-        if (cat.id !== categoryId) return cat;
+    return next.map((cat) => {
+      if ((isTaxMax || taxScore >= 90) && cat.id === "market") {
         return {
           ...cat,
-          subs: cat.subs.map((sub) => ({ ...sub, value: newValue })),
+          subs: cat.subs.map((sub) => ({
+            ...sub,
+            value: Math.min(sub.value, sub.id === "competition" ? 20 : 25),
+          })),
         };
-      })
+      }
+
+      if ((isTaxExtreme || taxScore >= 75) && cat.id === "market") {
+        return {
+          ...cat,
+          subs: cat.subs.map((sub) => ({
+            ...sub,
+            value: Math.min(sub.value, sub.id === "competition" ? 35 : 40),
+          })),
+        };
+      }
+
+      if ((isTaxExtreme || taxScore >= 75) && cat.id === "admin") {
+        return {
+          ...cat,
+          subs: cat.subs.map((sub) => ({
+            ...sub,
+            value: Math.min(sub.value, 45),
+          })),
+        };
+      }
+
+      if ((isTaxExtreme || taxScore >= 75) && cat.id === "freedoms") {
+        return {
+          ...cat,
+          subs: cat.subs.map((sub) => ({
+            ...sub,
+            value: Math.min(sub.value, 55),
+          })),
+        };
+      }
+
+      if (supportScore >= 75 && cat.id === "tax") {
+        return {
+          ...cat,
+          subs: cat.subs.map((sub) => ({
+            ...sub,
+            value: Math.max(sub.value, 65),
+          })),
+        };
+      }
+
+      if (securityScore >= 75 && cat.id === "freedoms") {
+        return {
+          ...cat,
+          subs: cat.subs.map((sub) => ({
+            ...sub,
+            value: Math.min(sub.value, 45),
+          })),
+        };
+      }
+
+      return cat;
+    });
+  }
+
+  function applyImpactToCategories(
+    currentCategories: Category[],
+    categoryId: string,
+    subId: string,
+    newValue: number,
+    delta: number
+  ) {
+    const impactMap: Record<string, Record<string, number>> = {
+      tax: {
+        market: -1.25,
+        admin: -0.65,
+        support: 0.65,
+        security: 0.15,
+        freedoms: -0.35,
+      },
+      support: {
+        tax: 0.7,
+        admin: -0.45,
+        market: -0.65,
+        security: 0.1,
+        freedoms: -0.15,
+      },
+      security: {
+        freedoms: -0.75,
+        admin: -0.25,
+        tax: 0.2,
+      },
+      freedoms: {
+        security: -0.3,
+        market: 0.3,
+        admin: 0.2,
+      },
+      market: {
+        tax: -0.45,
+        support: -0.35,
+        admin: 0.4,
+        freedoms: 0.2,
+      },
+      admin: {
+        market: 0.75,
+        support: -0.35,
+        security: 0.2,
+        tax: -0.3,
+      },
+    };
+
+    const next = currentCategories.map((cat) => ({
+      ...cat,
+      subs: cat.subs.map((sub) => {
+        if (cat.id === categoryId && sub.id === subId) {
+          return { ...sub, value: newValue };
+        }
+
+        const influence = impactMap[categoryId]?.[cat.id] ?? 0;
+
+        if (influence === 0) return sub;
+
+        return {
+          ...sub,
+          value: clamp(Math.round(sub.value + delta * influence)),
+        };
+      }),
+    }));
+
+    return applySystemCaps(next, categoryId, newValue);
+  }
+
+  function applyCountryModel(countryId: string) {
+    const model = countryModels.find((country) => country.id === countryId);
+    if (!model) return;
+
+    setSelectedCountryId(countryId);
+
+    setCategories((prev) =>
+      prev.map((cat) => ({
+        ...cat,
+        subs: cat.subs.map((sub) => ({
+          ...sub,
+          value: model.values[sub.id as keyof typeof model.values] ?? sub.value,
+        })),
+      }))
     );
   }
 
-function updateSub(categoryId: string, subId: string, newValue: number) {
-  setSelectedCountryId(null);
+  function updateSub(categoryId: string, subId: string, newValue: number) {
+    setSelectedCountryId(null);
 
-  setCategories((prev) => {
-    const currentCategory = prev.find((cat) => cat.id === categoryId);
-    const currentSub = currentCategory?.subs.find((sub) => sub.id === subId);
-    const oldValue = currentSub?.value ?? newValue;
-    const delta = newValue - oldValue;
+    setCategories((prev) => {
+      const currentCategory = prev.find((cat) => cat.id === categoryId);
+      const currentSub = currentCategory?.subs.find((sub) => sub.id === subId);
+      const oldValue = currentSub?.value ?? newValue;
+      const delta = newValue - oldValue;
 
-    return applyImpactToCategories(prev, categoryId, subId, newValue, delta);
-  });
-}
-
+      return applyImpactToCategories(prev, categoryId, subId, newValue, delta);
+    });
+  }
 
   async function downloadCard() {
     if (!cardRef.current) return;
+
     const dataUrl = await toPng(cardRef.current, { pixelRatio: 2 });
     const link = document.createElement("a");
+
     link.download = "civis-profil.png";
     link.href = dataUrl;
     link.click();
   }
 
   return (
-    <main className="min-h-screen bg-[#fff] text-neutral-950">
+    <main className="min-h-screen bg-white text-neutral-950">
       {screen === "intro" && (
         <section className="mx-auto flex min-h-screen max-w-5xl flex-col items-center justify-center px-6 text-center">
           <motion.div
@@ -713,6 +661,7 @@ function updateSub(categoryId: string, subId: string, newValue: number) {
                 <Dialog.Trigger className="inline-flex items-center gap-2 rounded-[6px] border border-neutral-300 bg-white px-5 py-3 text-neutral-800 transition hover:bg-neutral-100">
                   La démarche
                 </Dialog.Trigger>
+
                 <Dialog.Portal>
                   <Dialog.Overlay className="fixed inset-0 bg-black/30" />
                   <Dialog.Content className="fixed left-1/2 top-1/2 w-[90vw] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-[6px] bg-white p-6 shadow-xl">
@@ -723,7 +672,7 @@ function updateSub(categoryId: string, subId: string, newValue: number) {
                       Chaque choix a des conséquences. Certaines sont visibles
                       immédiatement, d’autres apparaissent plus tard. Civis
                       visualise ces interactions et permet d’explorer différents
-                      équilibres à travers une série de paramètres liés entre eux. Vous pourrez découvrir la méthode de calcul lors de l'étape suivante.
+                      équilibres à travers une série de paramètres liés entre eux.
                     </Dialog.Description>
                   </Dialog.Content>
                 </Dialog.Portal>
@@ -733,131 +682,158 @@ function updateSub(categoryId: string, subId: string, newValue: number) {
         </section>
       )}
 
-{screen === "game" && (
-  <section className="mx-auto max-w-6xl px-6 py-10">
-    <div className="mb-8 flex items-end justify-between gap-6">
-      <div>
-        <p className="text-sm uppercase tracking-[0.3em] text-neutral-500">
-          CIVIS
-        </p>
-        <h1 className="mt-3 text-4xl font-semibold tracking-tight">
-          Ajustez les paramètres
-        </h1>
-        <p className="mt-3 max-w-xl text-neutral-600">
-          Chaque curseur peut influencer d’autres paramètres. L’équilibre se
-          construit par répercussion.
-        </p>
-      </div>
-
-            <div className="flex items-center gap-3">
-        <Dialog.Root>
-          <Dialog.Trigger className="inline-flex items-center gap-2 rounded-[6px] border border-neutral-300 bg-white px-5 py-3 text-neutral-800 transition hover:bg-neutral-100">
-            <Info size={16} />
-            Comment ça marche
-          </Dialog.Trigger>
-
-          <Dialog.Portal>
-            <Dialog.Overlay className="fixed inset-0 bg-black/30" />
-            <Dialog.Content className="fixed left-1/2 top-1/2 max-h-[85vh] w-[92vw] max-w-3xl -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-[6px] bg-white p-6 shadow-xl">
-              <Dialog.Title className="text-2xl font-semibold">
-                Comment fonctionne Civis
-              </Dialog.Title>
-
-              <Dialog.Description className="mt-3 text-neutral-600">
-                Civis est une simulation volontairement simplifiée. Elle ne cherche pas à prédire précisément le réel, mais à rendre visibles les répercussions possibles d’un choix politique sur d’autres équilibres.
-              </Dialog.Description>
-
-              <div className="mt-6 overflow-hidden rounded-[6px] border border-neutral-200">
-                <table className="w-full border-collapse text-left text-sm">
-  <thead className="bg-neutral-100 text-neutral-600">
-    <tr>
-      <th className="p-3 font-medium">Paramètre modifié</th>
-      <th className="p-3 font-medium">Paramètre impacté</th>
-      <th className="p-3 font-medium">Coefficient</th>
-      <th className="p-3 font-medium">Exemple</th>
-    </tr>
-  </thead>
-  <tbody>
-    {impactDocumentation.map((row) => (
-      <tr key={`${row.source}-${row.target}`} className="border-t border-neutral-200">
-        <td className="p-3 font-medium">{row.source}</td>
-        <td className="p-3 text-neutral-600">{row.target}</td>
-        <td className="p-3 font-mono text-neutral-900">{row.coefficient}</td>
-        <td className="p-3 text-neutral-600">{row.example}</td>
-      </tr>
-    ))}
-  </tbody>
-</table>
-              </div>
-
-              <div className="mt-6 rounded-[6px] bg-neutral-100 p-4 text-sm text-neutral-700">
-                Cette expérience sert surtout à rappeler que chaque décision politique est un arbitrage. Elle peut améliorer un aspect du système tout en fragilisant autre chose. Les modèles qui promettent un équilibre parfait doivent donc être regardés avec prudence. Choisir une direction politique, c’est accepter des priorités, des limites et des coûts. Pour toute suggestion d'amélioration de la méthode de calcul, veuillez nous envoyer un email à civis.simulation@gmail.com.
-
-              </div>
-            </Dialog.Content>
-          </Dialog.Portal>
-        </Dialog.Root>
-
-        <button
-          onClick={() => setScreen("result")}
-          className="rounded-[6px] bg-black px-5 py-3 text-white transition hover:bg-neutral-800"
-        >
-          Voir le résultat
-        </button>
-      </div>
-    </div>
-
-    <div className="mb-6 flex flex-wrap gap-2">
-      {countryModels.map((country) => {
-        const isSelected = selectedCountryId === country.id;
-        const isClosest = !selectedCountryId && closestCountry.id === country.id && closestCountry.distance <= 6;
-
-        return (
-          <button
-            key={country.id}
-            onClick={() => applyCountryModel(country.id)}
-            className={`inline-flex items-center gap-2 rounded-[6px] border px-3 py-2 text-sm transition ${
-              isSelected || isClosest
-                ? "border-black bg-black text-white"
-                : "border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-100"
-            }`}
-          >
-            <FlagIcon code={country.flag} />
-            {country.name}
-          </button>
-        );
-      })}
-    </div>
-
-    
-    <div className="grid gap-3 md:grid-cols-2">
-      {categories.flatMap((cat) =>
-        cat.subs.map((sub) => (
-          <motion.div
-            key={sub.id}
-            layout
-            className="rounded-[6px] border border-neutral-200 bg-white p-4 shadow-sm"
-          >
-            <div className="mb-4 flex items-start justify-between gap-4">
-              <div>
-                <h2 className="text-sm font-semibold">{sub.name}</h2>
-                <p className="mt-1 text-xs text-neutral-500">{cat.name}</p>
-              </div>
-              <span className="rounded-[6px] bg-neutral-100 px-2 py-1 text-xs font-medium text-neutral-700">
-                {sub.value}
-              </span>
+      {screen === "game" && (
+        <section className="mx-auto max-w-6xl px-6 py-10">
+          <div className="mb-8 flex items-end justify-between gap-6">
+            <div>
+              <p className="text-sm uppercase tracking-[0.3em] text-neutral-500">
+                CIVIS
+              </p>
+              <h1 className="mt-3 text-4xl font-semibold tracking-tight">
+                Ajustez les paramètres
+              </h1>
+              <p className="mt-3 max-w-xl text-neutral-600">
+                Chaque curseur peut influencer d’autres paramètres. L’équilibre
+                se construit par répercussion.
+              </p>
             </div>
 
-            <StepSlider
-              value={sub.value}
-              onChange={(v) => updateSub(cat.id, sub.id, v)}
-            />
-          </motion.div>
-        ))
+            <div className="flex items-center gap-3">
+              <Dialog.Root>
+                <Dialog.Trigger className="inline-flex items-center gap-2 rounded-[6px] border border-neutral-300 bg-white px-5 py-3 text-neutral-800 transition hover:bg-neutral-100">
+                  <Info size={16} />
+                  Comment ça marche
+                </Dialog.Trigger>
+
+                <Dialog.Portal>
+                  <Dialog.Overlay className="fixed inset-0 bg-black/30" />
+                  <Dialog.Content className="fixed left-1/2 top-1/2 max-h-[85vh] w-[92vw] max-w-3xl -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-[6px] bg-white p-6 shadow-xl">
+                    <Dialog.Title className="text-2xl font-semibold">
+                      Comment fonctionne Civis
+                    </Dialog.Title>
+
+                    <Dialog.Description className="mt-3 text-neutral-600">
+                      Civis est une simulation volontairement simplifiée. Elle ne
+                      cherche pas à prédire précisément le réel, mais à rendre
+                      visibles les répercussions possibles d’un choix politique
+                      sur d’autres équilibres.
+                    </Dialog.Description>
+
+                    <div className="mt-6 overflow-hidden rounded-[6px] border border-neutral-200">
+                      <table className="w-full border-collapse text-left text-sm">
+                        <thead className="bg-neutral-100 text-neutral-600">
+                          <tr>
+                            <th className="p-3 font-medium">
+                              Paramètre modifié
+                            </th>
+                            <th className="p-3 font-medium">
+                              Paramètre impacté
+                            </th>
+                            <th className="p-3 font-medium">Coefficient</th>
+                            <th className="p-3 font-medium">Exemple</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {impactDocumentation.map((row) => (
+                            <tr
+                              key={`${row.source}-${row.target}`}
+                              className="border-t border-neutral-200"
+                            >
+                              <td className="p-3 font-medium">{row.source}</td>
+                              <td className="p-3 text-neutral-600">
+                                {row.target}
+                              </td>
+                              <td className="p-3 font-mono text-neutral-900">
+                                {row.coefficient}
+                              </td>
+                              <td className="p-3 text-neutral-600">
+                                {row.example}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    <div className="mt-6 rounded-[6px] bg-neutral-100 p-4 text-sm text-neutral-700">
+                      Cette expérience sert surtout à rappeler que chaque
+                      décision politique est un arbitrage. Elle peut améliorer
+                      un aspect du système tout en fragilisant autre chose. Les
+                      modèles qui promettent un équilibre parfait doivent donc
+                      être regardés avec prudence. Choisir une direction
+                      politique, c’est accepter des priorités, des limites et
+                      des coûts.
+                    </div>
+                  </Dialog.Content>
+                </Dialog.Portal>
+              </Dialog.Root>
+
+              <button
+                onClick={() => setScreen("result")}
+                className="rounded-[6px] bg-black px-5 py-3 text-white transition hover:bg-neutral-800"
+              >
+                Voir le résultat
+              </button>
+            </div>
+          </div>
+
+          <div className="mb-6 flex flex-wrap gap-2">
+            {countryModels.map((country) => {
+              const isSelected = selectedCountryId === country.id;
+              const isClosest =
+                !selectedCountryId &&
+                closestCountry.id === country.id &&
+                closestCountry.distance <= 6;
+
+              return (
+                <button
+                  key={country.id}
+                  onClick={() => applyCountryModel(country.id)}
+                  className={`inline-flex items-center gap-2 rounded-[6px] border px-3 py-2 text-sm transition ${
+                    isSelected || isClosest
+                      ? "border-black bg-black text-white"
+                      : "border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-100"
+                  }`}
+                >
+                  <FlagIcon code={country.flag} />
+                  {country.name}
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="grid gap-3 md:grid-cols-2">
+            {categories.flatMap((cat) =>
+              cat.subs.map((sub) => (
+                <motion.div
+                  key={sub.id}
+                  layout
+                  className="rounded-[6px] border border-neutral-200 bg-white p-4 shadow-sm"
+                >
+                  <div className="mb-4 flex items-start justify-between gap-4">
+                    <div>
+                      <h2 className="text-sm font-semibold">{sub.name}</h2>
+                      <p className="mt-1 text-xs text-neutral-500">
+                        {cat.name}
+                      </p>
+                    </div>
+
+                    <span className="rounded-[6px] bg-neutral-100 px-2 py-1 text-xs font-medium text-neutral-700">
+                      {sub.value}
+                    </span>
+                  </div>
+
+                  <StepSlider
+                    value={sub.value}
+                    onChange={(v) => updateSub(cat.id, sub.id, v)}
+                  />
+                </motion.div>
+              ))
+            )}
+          </div>
+        </section>
       )}
-    </div>
-  </section>
-)}
+
       {screen === "result" && (
         <section className="mx-auto max-w-6xl px-6 py-10">
           <div className="mb-8 flex items-end justify-between gap-6">
@@ -869,6 +845,7 @@ function updateSub(categoryId: string, subId: string, newValue: number) {
                 Votre équilibre Civis
               </h1>
             </div>
+
             <button
               onClick={() => setScreen("game")}
               className="rounded-[6px] border border-neutral-300 bg-white px-5 py-3 transition hover:bg-neutral-100"
@@ -885,7 +862,12 @@ function updateSub(categoryId: string, subId: string, newValue: number) {
                   <RadarChart data={radarData}>
                     <PolarGrid />
                     <PolarAngleAxis dataKey="subject" />
-                    <Radar dataKey="value" fill="#111" fillOpacity={0.22} stroke="#111" />
+                    <Radar
+                      dataKey="value"
+                      fill="#111"
+                      fillOpacity={0.22}
+                      stroke="#111"
+                    />
                   </RadarChart>
                 </ResponsiveContainer>
               </div>
@@ -899,11 +881,15 @@ function updateSub(categoryId: string, subId: string, newValue: number) {
                 <p className="text-sm uppercase tracking-[0.35em] text-white/60">
                   CIVIS
                 </p>
-                <h2 className="mt-10 text-4xl font-semibold">{profileName}</h2>
+                <h2 className="mt-10 text-4xl font-semibold">
+                  {profileName}
+                </h2>
+
                 <div className="mt-4 inline-flex items-center gap-2 rounded-[6px] bg-white/10 px-3 py-2 text-sm text-white/80">
-  <FlagIcon code={closestCountry.flag} />
-  Modèle le plus proche : {closestCountry.name}
-</div>
+                  <FlagIcon code={closestCountry.flag} />
+                  Modèle le plus proche : {closestCountry.name}
+                </div>
+
                 <p className="mt-5 text-lg text-white/75">
                   Un modèle construit autour de compromis entre autonomie,
                   cadre, protection et responsabilité.
@@ -913,65 +899,80 @@ function updateSub(categoryId: string, subId: string, newValue: number) {
                   {radarData.slice(0, 4).map((item) => (
                     <div key={item.subject}>
                       <p className="text-3xl font-semibold">{item.value}</p>
-                      <p className="text-sm text-white/60">{item.subject}</p>
+                      <p className="text-sm text-white/60">
+                        {item.subject}
+                      </p>
                     </div>
                   ))}
                 </div>
               </div>
 
+              <Dialog.Root>
+                <Dialog.Trigger className="inline-flex w-full items-center justify-center gap-2 rounded-[6px] border border-neutral-300 bg-white px-5 py-3 text-neutral-800 transition hover:bg-neutral-100">
+                  Comparer avec {closestCountry.name}
+                </Dialog.Trigger>
 
-<Dialog.Root>
-  <Dialog.Trigger className="inline-flex w-full items-center justify-center gap-2 rounded-[6px] border border-neutral-300 bg-white px-5 py-3 text-neutral-800 transition hover:bg-neutral-100">
-    Comparer avec {closestCountry.name}
-  </Dialog.Trigger>
+                <Dialog.Portal>
+                  <Dialog.Overlay className="fixed inset-0 bg-black/30" />
+                  <Dialog.Content className="fixed left-1/2 top-1/2 max-h-[85vh] w-[92vw] max-w-3xl -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-[6px] bg-white p-6 shadow-xl">
+                    <Dialog.Title className="text-2xl font-semibold">
+                      Comparaison avec {closestCountry.name}
+                    </Dialog.Title>
 
-  <Dialog.Portal>
-    <Dialog.Overlay className="fixed inset-0 bg-black/30" />
-    <Dialog.Content className="fixed left-1/2 top-1/2 max-h-[85vh] w-[92vw] max-w-3xl -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-[6px] bg-white p-6 shadow-xl">
-      <Dialog.Title className="text-2xl font-semibold">
-        Comparaison avec {closestCountry.name}
-      </Dialog.Title>
+                    <Dialog.Description className="mt-3 text-neutral-600">
+                      Cette comparaison mesure l’écart moyen entre vos curseurs
+                      et le modèle simplifié du pays sélectionné.
+                    </Dialog.Description>
 
-      <Dialog.Description className="mt-3 text-neutral-600">
-        Cette comparaison mesure l’écart moyen entre vos curseurs et le modèle simplifié du pays sélectionné.
-      </Dialog.Description>
+                    <div className="mt-6 overflow-hidden rounded-[6px] border border-neutral-200">
+                      <table className="w-full border-collapse text-left text-sm">
+                        <thead className="bg-neutral-100 text-neutral-600">
+                          <tr>
+                            <th className="p-3 font-medium">Paramètre</th>
+                            <th className="p-3 font-medium">Votre modèle</th>
+                            <th className="p-3 font-medium">
+                              {closestCountry.name}
+                            </th>
+                            <th className="p-3 font-medium">Écart</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {categories.flatMap((cat) =>
+                            cat.subs.map((sub) => {
+                              const countryValue =
+                                closestCountry.values[
+                                  sub.id as keyof typeof closestCountry.values
+                                ] ?? 50;
+                              const diff = Math.abs(sub.value - countryValue);
 
-      <div className="mt-6 overflow-hidden rounded-[6px] border border-neutral-200">
-        <table className="w-full border-collapse text-left text-sm">
-          <thead className="bg-neutral-100 text-neutral-600">
-            <tr>
-              <th className="p-3 font-medium">Paramètre</th>
-              <th className="p-3 font-medium">Votre modèle</th>
-              <th className="p-3 font-medium">{closestCountry.name}</th>
-              <th className="p-3 font-medium">Écart</th>
-            </tr>
-          </thead>
-          <tbody>
-            {categories.flatMap((cat) =>
-              cat.subs.map((sub) => {
-                const countryValue =
-                  closestCountry.values[sub.id as keyof typeof closestCountry.values] ?? 50;
-                const diff = Math.abs(sub.value - countryValue);
+                              return (
+                                <tr
+                                  key={sub.id}
+                                  className="border-t border-neutral-200"
+                                >
+                                  <td className="p-3 font-medium">
+                                    {sub.name}
+                                  </td>
+                                  <td className="p-3 text-neutral-600">
+                                    {sub.value}
+                                  </td>
+                                  <td className="p-3 text-neutral-600">
+                                    {countryValue}
+                                  </td>
+                                  <td className="p-3 text-neutral-900">
+                                    {diff}
+                                  </td>
+                                </tr>
+                              );
+                            })
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  </Dialog.Content>
+                </Dialog.Portal>
+              </Dialog.Root>
 
-                return (
-                  <tr key={sub.id} className="border-t border-neutral-200">
-                    <td className="p-3 font-medium">{sub.name}</td>
-                    <td className="p-3 text-neutral-600">{sub.value}</td>
-                    <td className="p-3 text-neutral-600">{countryValue}</td>
-                    <td className="p-3 text-neutral-900">{diff}</td>
-                  </tr>
-                );
-              })
-            )}
-          </tbody>
-        </table>
-      </div>
-    </Dialog.Content>
-  </Dialog.Portal>
-</Dialog.Root>
-
-
-              
               <button
                 onClick={downloadCard}
                 className="inline-flex w-full items-center justify-center gap-2 rounded-[6px] bg-black px-5 py-3 text-white transition hover:bg-neutral-800"
