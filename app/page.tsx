@@ -404,7 +404,7 @@ export default function Home() {
 
     return [
       {
-        subject: "Autonomie",
+        subject: "Liberté économique",
         value: average([get("market"), get("freedoms")]),
       },
       {
@@ -428,14 +428,14 @@ export default function Home() {
 
   const profileName = useMemo(() => {
     const autonomy =
-      radarData.find((d) => d.subject === "Autonomie")?.value ?? 50;
+      radarData.find((d) => d.subject === "Liberté économique")?.value ?? 50;
     const frame = radarData.find((d) => d.subject === "Cadre")?.value ?? 50;
     const protection =
       radarData.find((d) => d.subject === "Protection")?.value ?? 50;
 
-    if (autonomy >= 70 && frame >= 60) return "Libéral cadré";
     if (protection >= 70 && frame >= 60) return "Protecteur structuré";
-    if (autonomy >= 70 && frame < 45) return "Autonomiste ouvert";
+    if (economicFreedom >= 70 && frame >= 60) return "Libéral cadré";
+if (economicFreedom >= 70 && frame < 45) return "Libéral dérégulé";
     if (frame >= 75) return "Ordre renforcé";
     return "Équilibriste pragmatique";
   }, [radarData]);
@@ -891,8 +891,8 @@ export default function Home() {
                 </div>
 
                 <p className="mt-5 text-lg text-white/75">
-                  Un modèle construit autour de compromis entre autonomie,
-                  cadre, protection et responsabilité.
+                  Un modèle construit autour de compromis entre liberté économique,
+cadre, protection et responsabilité.
                 </p>
 
                 <div className="mt-10 grid grid-cols-2 gap-4">
