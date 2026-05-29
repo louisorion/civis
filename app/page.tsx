@@ -358,7 +358,7 @@ function StepSlider({
         max={100}
         step={25}
         onValueChange={([v]) => onChange(v)}
-        className="relative flex h-8 w-full touch-none items-center"
+        className="relative flex h-8 w-full touch-pan-y items-center"
       >
         <Slider.Track className="relative h-2 w-full rounded-[6px] bg-neutral-200">
           <Slider.Range className="absolute h-full rounded-[6px] bg-black" />
@@ -713,11 +713,11 @@ export default function Home() {
                 </p>
               </div>
 
-              <div className="grid grid-cols-2 gap-2 sm:flex sm:items-center sm:gap-3">
+              <div className="flex items-center gap-3">
                 <Dialog.Root>
                   <Dialog.Trigger className="inline-flex items-center justify-center gap-2 rounded-[6px] border border-neutral-300 bg-white px-4 py-3 text-sm text-neutral-800 transition hover:bg-neutral-100 sm:px-5">
                     <Info size={16} />
-                    Comment
+                    Comment ça marche
                   </Dialog.Trigger>
 
                   <MobileDialogContent title="Comment fonctionne Civis">
@@ -761,20 +761,17 @@ export default function Home() {
                     </div>
 
                     <div className="mt-5 rounded-[6px] bg-neutral-100 p-4 text-sm leading-relaxed text-neutral-700">
-                      Chaque décision politique est un arbitrage. Elle peut
-                      améliorer un aspect du système tout en fragilisant autre
-                      chose. Les modèles qui promettent un équilibre parfait
-                      doivent donc être regardés avec prudence.
+                      Chaque décision politique est un arbitrage. Elle peut améliorer un aspect du système tout en fragilisant autre chose. Les modèles qui promettent un équilibre parfait doivent donc être regardés avec prudence. Pour toute suggestion d'amélioration, veuillez nous contacter à civis.simulation@gmail.com.
                     </div>
                   </MobileDialogContent>
                 </Dialog.Root>
 
                 <button
-                  onClick={() => setScreen("result")}
-                  className="rounded-[6px] bg-black px-4 py-3 text-sm text-white transition hover:bg-neutral-800 sm:px-5"
-                >
-                  Résultat
-                </button>
+  onClick={() => setScreen("result")}
+  className="rounded-[6px] bg-black px-4 py-3 text-sm text-white transition hover:bg-neutral-800 sm:px-5"
+>
+  Résultat
+</button>
               </div>
             </div>
           </div>
