@@ -78,6 +78,193 @@ const impactDocumentation = [
     example: "+25 points → +14 points",
   },
 ];
+
+
+const countryModels = [
+  {
+    id: "france",
+    name: "France",
+    flag: "fr",
+    values: {
+      business: 50,
+      competition: 50,
+      investment: 50,
+      incomeTax: 75,
+      companyTax: 75,
+      localTax: 70,
+      health: 85,
+      housing: 70,
+      unemployment: 75,
+      retirement: 85,
+      police: 65,
+      sentences: 55,
+      justiceSpeed: 35,
+      speech: 70,
+      privacy: 65,
+      association: 75,
+      paperwork: 35,
+      rules: 35,
+      speed: 30,
+    },
+  },
+  {
+    id: "switzerland",
+    name: "Suisse",
+    flag: "ch",
+    values: {
+      business: 85,
+      competition: 80,
+      investment: 85,
+      incomeTax: 45,
+      companyTax: 45,
+      localTax: 55,
+      health: 65,
+      housing: 45,
+      unemployment: 45,
+      retirement: 55,
+      police: 70,
+      sentences: 60,
+      justiceSpeed: 75,
+      speech: 85,
+      privacy: 85,
+      association: 85,
+      paperwork: 75,
+      rules: 75,
+      speed: 75,
+    },
+  },
+  {
+    id: "sweden",
+    name: "Suède",
+    flag: "se",
+    values: {
+      business: 75,
+      competition: 75,
+      investment: 70,
+      incomeTax: 80,
+      companyTax: 60,
+      localTax: 75,
+      health: 85,
+      housing: 70,
+      unemployment: 75,
+      retirement: 80,
+      police: 70,
+      sentences: 55,
+      justiceSpeed: 65,
+      speech: 85,
+      privacy: 80,
+      association: 85,
+      paperwork: 65,
+      rules: 70,
+      speed: 70,
+    },
+  },
+  {
+    id: "usa",
+    name: "États-Unis",
+    flag: "us",
+    values: {
+      business: 85,
+      competition: 80,
+      investment: 85,
+      incomeTax: 45,
+      companyTax: 45,
+      localTax: 45,
+      health: 40,
+      housing: 35,
+      unemployment: 35,
+      retirement: 45,
+      police: 75,
+      sentences: 85,
+      justiceSpeed: 55,
+      speech: 90,
+      privacy: 65,
+      association: 85,
+      paperwork: 65,
+      rules: 60,
+      speed: 60,
+    },
+  },
+  {
+    id: "finland",
+    name: "Finlande",
+    flag: "fi",
+    values: {
+      business: 75,
+      competition: 75,
+      investment: 70,
+      incomeTax: 80,
+      companyTax: 60,
+      localTax: 75,
+      health: 85,
+      housing: 70,
+      unemployment: 75,
+      retirement: 80,
+      police: 75,
+      sentences: 60,
+      justiceSpeed: 70,
+      speech: 85,
+      privacy: 80,
+      association: 85,
+      paperwork: 70,
+      rules: 75,
+      speed: 75,
+    },
+  },
+];
+
+function getCountryDistance(categories: typeof initialCategories, model: typeof countryModels[number]) {
+  const currentValues = categories.flatMap((cat) => cat.subs);
+  const total = currentValues.reduce((sum, sub) => {
+    const modelValue = model.values[sub.id as keyof typeof model.values] ?? 50;
+    return sum + Math.abs(sub.value - modelValue);
+  }, 0);
+
+  return Math.round(total / currentValues.length);
+}
+
+function getClosestCountry(categories: typeof initialCategories) {
+  return countryModels
+    .map((country) => ({
+      ...country,
+      distance: getCountryDistance(categories, country),
+    }))
+    .sort((a, b) => a.distance - b.distance)[0];
+}
+
+function FlagIcon({ code }: { code: string }) {
+  const flagClasses: Record<string, string> = {
+    fr: "bg-gradient-to-r from-blue-700 via-white to-red-600",
+    ch: "bg-red-600",
+    se: "bg-blue-600",
+    us: "bg-gradient-to-b from-red-600 via-white to-blue-700",
+    fi: "bg-white",
+  };
+
+  return (
+    <span
+      className={`relative inline-block h-4 w-6 overflow-hidden rounded-[2px] border border-black/10 ${flagClasses[code]}`}
+    >
+      {code === "ch" && (
+        <span className="absolute left-1/2 top-1/2 h-2.5 w-1 -translate-x-1/2 -translate-y-1/2 bg-white before:absolute before:left-1/2 before:top-1/2 before:h-1 before:w-3 before:-translate-x-1/2 before:-translate-y-1/2 before:bg-white" />
+      )}
+      {code === "se" && (
+        <>
+          <span className="absolute left-[32%] top-0 h-full w-1 bg-yellow-300" />
+          <span className="absolute left-0 top-[42%] h-1 w-full bg-yellow-300" />
+        </>
+      )}
+      {code === "fi" && (
+        <>
+          <span className="absolute left-[32%] top-0 h-full w-1 bg-blue-700" />
+          <span className="absolute left-0 top-[42%] h-1 w-full bg-blue-700" />
+        </>
+      )}
+    </span>
+  );
+}
+
+
 const initialCategories = [
   {
     id: "market",
@@ -190,6 +377,7 @@ function StepSlider({
 export default function Home() {
   const [screen, setScreen] = useState<"intro" | "game" | "result">("intro");
   const [categories, setCategories] = useState(initialCategories);
+  const [selectedCountryId, setSelectedCountryId] = useState<string | null>(null);
   const cardRef = useRef<HTMLDivElement>(null);
 
   const categoryScores = useMemo(
@@ -216,6 +404,7 @@ export default function Home() {
     ];
   }, [categoryScores]);
 
+  const closestCountry = useMemo(() => getClosestCountry(categories), [categories]);
   const profileName = useMemo(() => {
     const autonomy = radarData.find((d) => d.subject === "Autonomie")?.value ?? 50;
     const frame = radarData.find((d) => d.subject === "Cadre")?.value ?? 50;
@@ -228,6 +417,24 @@ export default function Home() {
     return "Équilibriste pragmatique";
   }, [radarData]);
 
+
+function applyCountryModel(countryId: string) {
+  const model = countryModels.find((country) => country.id === countryId);
+  if (!model) return;
+
+  setSelectedCountryId(countryId);
+
+  setCategories((prev) =>
+    prev.map((cat) => ({
+      ...cat,
+      subs: cat.subs.map((sub) => ({
+        ...sub,
+        value: model.values[sub.id as keyof typeof model.values] ?? sub.value,
+      })),
+    }))
+  );
+}
+  
   function updateParent(categoryId: string, newValue: number) {
     setCategories((prev) =>
       prev.map((cat) => {
@@ -241,6 +448,7 @@ export default function Home() {
   }
 
 function updateSub(categoryId: string, subId: string, newValue: number) {
+  setSelectedCountryId(null);
   setCategories((prev) => {
     const currentCategory = prev.find((cat) => cat.id === categoryId);
     const currentSub = currentCategory?.subs.find((sub) => sub.id === subId);
@@ -429,9 +637,9 @@ function updateSub(categoryId: string, subId: string, newValue: number) {
                     </Dialog.Title>
                     <Dialog.Description className="mt-4 text-neutral-600">
                       Chaque choix a des conséquences. Certaines sont visibles
-                      immédiatement. D’autres apparaissent plus loin. Civis
+                      immédiatement, d’autres apparaissent plus tard. Civis
                       visualise ces interactions et permet d’explorer différents
-                      équilibres à travers une série de paramètres liés entre eux.
+                      équilibres à travers une série de paramètres liés entre eux. Vous pourrez découvrir la méthode de calcul lors de l'étape suivante.
                     </Dialog.Description>
                   </Dialog.Content>
                 </Dialog.Portal>
@@ -515,6 +723,29 @@ function updateSub(categoryId: string, subId: string, newValue: number) {
       </div>
     </div>
 
+    <div className="mb-6 flex flex-wrap gap-2">
+      {countryModels.map((country) => {
+        const isSelected = selectedCountryId === country.id;
+        const isClosest = !selectedCountryId && closestCountry.id === country.id && closestCountry.distance <= 6;
+
+        return (
+          <button
+            key={country.id}
+            onClick={() => applyCountryModel(country.id)}
+            className={`inline-flex items-center gap-2 rounded-[6px] border px-3 py-2 text-sm transition ${
+              isSelected || isClosest
+                ? "border-black bg-black text-white"
+                : "border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-100"
+            }`}
+          >
+            <FlagIcon code={country.flag} />
+            {country.name}
+          </button>
+        );
+      })}
+    </div>
+
+    
     <div className="grid gap-3 md:grid-cols-2">
       {categories.flatMap((cat) =>
         cat.subs.map((sub) => (
@@ -585,6 +816,10 @@ function updateSub(categoryId: string, subId: string, newValue: number) {
                   CIVIS
                 </p>
                 <h2 className="mt-10 text-4xl font-semibold">{profileName}</h2>
+                <div className="mt-4 inline-flex items-center gap-2 rounded-[6px] bg-white/10 px-3 py-2 text-sm text-white/80">
+  <FlagIcon code={closestCountry.flag} />
+  Modèle le plus proche : {closestCountry.name}
+</div>
                 <p className="mt-5 text-lg text-white/75">
                   Un modèle construit autour de compromis entre autonomie,
                   cadre, protection et responsabilité.
@@ -600,6 +835,59 @@ function updateSub(categoryId: string, subId: string, newValue: number) {
                 </div>
               </div>
 
+
+<Dialog.Root>
+  <Dialog.Trigger className="inline-flex w-full items-center justify-center gap-2 rounded-[6px] border border-neutral-300 bg-white px-5 py-3 text-neutral-800 transition hover:bg-neutral-100">
+    Comparer avec {closestCountry.name}
+  </Dialog.Trigger>
+
+  <Dialog.Portal>
+    <Dialog.Overlay className="fixed inset-0 bg-black/30" />
+    <Dialog.Content className="fixed left-1/2 top-1/2 max-h-[85vh] w-[92vw] max-w-3xl -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-[6px] bg-white p-6 shadow-xl">
+      <Dialog.Title className="text-2xl font-semibold">
+        Comparaison avec {closestCountry.name}
+      </Dialog.Title>
+
+      <Dialog.Description className="mt-3 text-neutral-600">
+        Cette comparaison mesure l’écart moyen entre vos curseurs et le modèle simplifié du pays sélectionné.
+      </Dialog.Description>
+
+      <div className="mt-6 overflow-hidden rounded-[6px] border border-neutral-200">
+        <table className="w-full border-collapse text-left text-sm">
+          <thead className="bg-neutral-100 text-neutral-600">
+            <tr>
+              <th className="p-3 font-medium">Paramètre</th>
+              <th className="p-3 font-medium">Votre modèle</th>
+              <th className="p-3 font-medium">{closestCountry.name}</th>
+              <th className="p-3 font-medium">Écart</th>
+            </tr>
+          </thead>
+          <tbody>
+            {categories.flatMap((cat) =>
+              cat.subs.map((sub) => {
+                const countryValue =
+                  closestCountry.values[sub.id as keyof typeof closestCountry.values] ?? 50;
+                const diff = Math.abs(sub.value - countryValue);
+
+                return (
+                  <tr key={sub.id} className="border-t border-neutral-200">
+                    <td className="p-3 font-medium">{sub.name}</td>
+                    <td className="p-3 text-neutral-600">{sub.value}</td>
+                    <td className="p-3 text-neutral-600">{countryValue}</td>
+                    <td className="p-3 text-neutral-900">{diff}</td>
+                  </tr>
+                );
+              })
+            )}
+          </tbody>
+        </table>
+      </div>
+    </Dialog.Content>
+  </Dialog.Portal>
+</Dialog.Root>
+
+
+              
               <button
                 onClick={downloadCard}
                 className="inline-flex w-full items-center justify-center gap-2 rounded-[6px] bg-black px-5 py-3 text-white transition hover:bg-neutral-800"
