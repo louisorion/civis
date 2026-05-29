@@ -1,4 +1,0 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-:root{color-scheme:light} body{margin:0;background:#f7f7f4;color:#171717} *{box-sizing:border-box}.noise{position:absolute;inset:0;opacity:.08;background-image:radial-gradient(#fff 1px,transparent 1px);background-size:18px 18px;mask-image:linear-gradient(to bottom,#000,transparent)}
