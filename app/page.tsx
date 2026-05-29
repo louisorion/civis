@@ -185,6 +185,209 @@ function updateSub(categoryId: string, subId: string, newValue: number) {
     const oldValue = currentSub?.value ?? newValue;
     const delta = newValue - oldValue;
 
+    const impactMap: Record<string, Record<string, number>> = {
+      tax: {
+        market: -0.85,
+        admin: -0.45,
+        support: 0.55,
+        security: 0.1,
+        freedoms: -0.25,
+      },
+      support: {
+        tax: 0.5,
+        admin: -0.35,
+        market: -0.45,
+        security: 0.05,
+      },
+      security: {
+        freedoms: -0.55,
+        admin: -0.2,
+        tax: 0.15,
+      },
+      freedoms: {
+        security: -0.25,
+        market: 0.25,
+        admin: 0.15,
+      },
+      market: {
+        tax: -0.35,
+        support: -0.25,
+        admin: 0.3,
+        freedoms: 0.15,
+      },
+      admin: {
+        market: 0.55,
+        support: -0.25,
+        security: 0.15,
+        tax: -0.2,
+      },
+    };
+
+    const next = prev.map((cat) => ({
+      ...cat,
+      subs: cat.subs.map((sub) => {
+        if (cat.id === categoryId && sub.id === subId) {
+          return {
+            ...sub,
+            value: newValue,
+          };
+        }
+
+        const influence = impactMap[categoryId]?.[cat.id] ?? 0;
+
+        if (influence === 0) {
+          return sub;
+        }
+
+        return {
+          ...sub,
+          value: clamp(
+            Math.round(sub.value + delta * influence)
+          ),
+        };
+      }),
+    }));
+
+    return next.map((cat) => {
+      const taxScore =
+        average(
+          next
+            .find((c) => c.id === "tax")
+            ?.subs.map((s) => s.value) ?? [50]
+        );
+
+      const supportScore =
+        average(
+          next
+            .find((c) => c.id === "support")
+            ?.subs.map((s) => s.value) ?? [50]
+        );
+
+      const securityScore =
+        average(
+          next
+            .find((c) => c.id === "security")
+            ?.subs.map((s) => s.value) ?? [50]
+        );
+
+      if (taxScore >= 75 && cat.id === "market") {
+        return {
+          ...cat,
+          subs: cat.subs.map((sub) => ({
+            ...sub,
+            value: Math.min(sub.value, 50),
+          })),
+        };
+      }
+
+      if (taxScore >= 100 && cat.id === "market") {
+        return {
+          ...cat,
+          subs: cat.subs.map((sub) => ({
+            ...sub,
+            value: Math.min(sub.value, 25),
+          })),
+        };
+      }
+
+      if (supportScore >= 75 && cat.id === "tax") {
+        return {
+          ...cat,
+          subs: cat.subs.map((sub) => ({
+            ...sub,
+            value: Math.max(sub.value, 60),
+          })),
+        };
+      }
+
+      if (securityScore >= 75 && cat.id === "freedoms") {
+        return {
+          ...cat,
+          subs: cat.subs.map((sub) => ({
+            ...sub,
+            value: Math.min(sub.value, 50),
+          })),
+        };
+      }
+
+      return cat;
+    });
+  });
+}
+
+  function rebalanceSystem(nextCategories: typeof initialCategories) {
+  const taxScore = average(
+    nextCategories.find((cat) => cat.id === "tax")?.subs.map((s) => s.value) ?? [50]
+  );
+
+  const supportScore = average(
+    nextCategories.find((cat) => cat.id === "support")?.subs.map((s) => s.value) ?? [50]
+  );
+
+  const securityScore = average(
+    nextCategories.find((cat) => cat.id === "security")?.subs.map((s) => s.value) ?? [50]
+  );
+
+  return nextCategories.map((cat) => {
+    if (taxScore >= 75 && cat.id === "market") {
+      return {
+        ...cat,
+        subs: cat.subs.map((sub) => ({
+          ...sub,
+          value: Math.min(sub.value, 50),
+        })),
+      };
+    }
+
+    if (taxScore >= 100 && cat.id === "market") {
+      return {
+        ...cat,
+        subs: cat.subs.map((sub) => ({
+          ...sub,
+          value: Math.min(sub.value, 25),
+        })),
+      };
+    }
+
+    if (taxScore >= 75 && cat.id === "admin") {
+      return {
+        ...cat,
+        subs: cat.subs.map((sub) => ({
+          ...sub,
+          value: Math.min(sub.value, 55),
+        })),
+      };
+    }
+
+    if (supportScore >= 75 && cat.id === "tax") {
+      return {
+        ...cat,
+        subs: cat.subs.map((sub) => ({
+          ...sub,
+          value: Math.max(sub.value, 60),
+        })),
+      };
+    }
+
+    if (securityScore >= 75 && cat.id === "freedoms") {
+      return {
+        ...cat,
+        subs: cat.subs.map((sub) => ({
+          ...sub,
+          value: Math.min(sub.value, 50),
+        })),
+      };
+    }
+
+    return cat;
+  });
+}
+  setCategories((prev) => {
+    const currentCategory = prev.find((cat) => cat.id === categoryId);
+    const currentSub = currentCategory?.subs.find((sub) => sub.id === subId);
+    const oldValue = currentSub?.value ?? newValue;
+    const delta = newValue - oldValue;
+
     return prev.map((cat) => ({
       ...cat,
       subs: cat.subs.map((sub) => {
