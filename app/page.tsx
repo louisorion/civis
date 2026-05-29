@@ -16,6 +16,33 @@ import {
 
 const steps = [0, 25, 50, 75, 100];
 
+const impactDocumentation = [
+  {
+    action: "Contribution publique augmente",
+    effects: "Économie productive baisse, accompagnement social monte, complexité administrative augmente.",
+  },
+  {
+    action: "Accompagnement social augmente",
+    effects: "Contribution publique augmente, économie productive baisse légèrement, administration se complexifie.",
+  },
+  {
+    action: "Sécurité et justice augmente",
+    effects: "Cadre collectif monte, libertés civiles peuvent reculer si le niveau devient très élevé.",
+  },
+  {
+    action: "Libertés civiles augmentent",
+    effects: "Autonomie individuelle monte, contrôle public baisse, économie productive peut être légèrement favorisée.",
+  },
+  {
+    action: "Économie productive augmente",
+    effects: "Dynamisme économique monte, besoin de contribution publique peut baisser, accompagnement social devient plus ciblé.",
+  },
+  {
+    action: "Simplicité administrative augmente",
+    effects: "Économie productive monte, lisibilité du système augmente, certains dispositifs publics deviennent moins détaillés.",
+  },
+];
+
 const initialCategories = [
   {
     id: "market",
@@ -357,8 +384,7 @@ function updateSub(categoryId: string, subId: string, newValue: number) {
 
               <Dialog.Root>
                 <Dialog.Trigger className="inline-flex items-center gap-2 rounded-[6px] border border-neutral-300 bg-white px-5 py-3 text-neutral-800 transition hover:bg-neutral-100">
-                  <Info size={16} />
-                  Comprendre
+                  La démarche
                 </Dialog.Trigger>
                 <Dialog.Portal>
                   <Dialog.Overlay className="fixed inset-0 bg-black/30" />
@@ -396,12 +422,57 @@ function updateSub(categoryId: string, subId: string, newValue: number) {
         </p>
       </div>
 
-      <button
-        onClick={() => setScreen("result")}
-        className="rounded-[6px] bg-black px-5 py-3 text-white transition hover:bg-neutral-800"
-      >
-        Voir le résultat
-      </button>
+            <div className="flex items-center gap-3">
+        <Dialog.Root>
+          <Dialog.Trigger className="inline-flex items-center gap-2 rounded-[6px] border border-neutral-300 bg-white px-5 py-3 text-neutral-800 transition hover:bg-neutral-100">
+            <Info size={16} />
+            Comment ça marche
+          </Dialog.Trigger>
+
+          <Dialog.Portal>
+            <Dialog.Overlay className="fixed inset-0 bg-black/30" />
+            <Dialog.Content className="fixed left-1/2 top-1/2 max-h-[85vh] w-[92vw] max-w-3xl -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-[6px] bg-white p-6 shadow-xl">
+              <Dialog.Title className="text-2xl font-semibold">
+                Comment fonctionne Civis
+              </Dialog.Title>
+
+              <Dialog.Description className="mt-3 text-neutral-600">
+                Civis est une simulation volontairement simplifiée. Elle ne cherche pas à prédire précisément le réel, mais à rendre visibles les répercussions possibles d’un choix politique sur d’autres équilibres.
+              </Dialog.Description>
+
+              <div className="mt-6 overflow-hidden rounded-[6px] border border-neutral-200">
+                <table className="w-full border-collapse text-left text-sm">
+                  <thead className="bg-neutral-100 text-neutral-600">
+                    <tr>
+                      <th className="p-3 font-medium">Quand ce paramètre augmente</th>
+                      <th className="p-3 font-medium">Effets simulés</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {impactDocumentation.map((row) => (
+                      <tr key={row.action} className="border-t border-neutral-200">
+                        <td className="p-3 font-medium">{row.action}</td>
+                        <td className="p-3 text-neutral-600">{row.effects}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="mt-6 rounded-[6px] bg-neutral-100 p-4 text-sm text-neutral-700">
+                Cette expérience sert surtout à rappeler une chose simple : chaque décision politique est un arbitrage. Elle peut améliorer un aspect du système tout en fragilisant autre chose. Les modèles qui promettent un équilibre parfait doivent donc être regardés avec prudence. Choisir une direction politique, c’est accepter des priorités, des limites et des coûts.
+              </div>
+            </Dialog.Content>
+          </Dialog.Portal>
+        </Dialog.Root>
+
+        <button
+          onClick={() => setScreen("result")}
+          className="rounded-[6px] bg-black px-5 py-3 text-white transition hover:bg-neutral-800"
+        >
+          Voir le résultat
+        </button>
+      </div>
     </div>
 
     <div className="grid gap-3 md:grid-cols-2">
