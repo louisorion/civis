@@ -233,32 +233,42 @@ function getClosestCountry(categories: typeof initialCategories) {
 }
 
 function FlagIcon({ code }: { code: string }) {
-  const flagClasses: Record<string, string> = {
-    fr: "bg-gradient-to-r from-blue-700 via-white to-red-600",
-    ch: "bg-red-600",
-    se: "bg-blue-600",
-    us: "bg-gradient-to-b from-red-600 via-white to-blue-700",
-    fi: "bg-white",
-  };
-
   return (
-    <span
-      className={`relative inline-block h-4 w-6 overflow-hidden rounded-[2px] border border-black/10 ${flagClasses[code]}`}
-    >
-      {code === "ch" && (
-        <span className="absolute left-1/2 top-1/2 h-2.5 w-1 -translate-x-1/2 -translate-y-1/2 bg-white before:absolute before:left-1/2 before:top-1/2 before:h-1 before:w-3 before:-translate-x-1/2 before:-translate-y-1/2 before:bg-white" />
+    <span className="relative inline-block h-4 w-6 overflow-hidden rounded-[2px] border border-black/10 bg-white">
+      {code === "fr" && (
+        <span className="grid h-full w-full grid-cols-3">
+          <span className="bg-blue-700" />
+          <span className="bg-white" />
+          <span className="bg-red-600" />
+        </span>
       )}
+
+      {code === "us" && (
+        <span className="relative block h-full w-full bg-white">
+          <span className="absolute inset-0 bg-[repeating-linear-gradient(to_bottom,#dc2626_0px,#dc2626_2px,#ffffff_2px,#ffffff_4px)]" />
+          <span className="absolute left-0 top-0 h-[54%] w-[45%] bg-blue-800" />
+        </span>
+      )}
+
+      {code === "ch" && (
+        <span className="relative block h-full w-full bg-red-600">
+          <span className="absolute left-1/2 top-1/2 h-2.5 w-1 -translate-x-1/2 -translate-y-1/2 bg-white" />
+          <span className="absolute left-1/2 top-1/2 h-1 w-3 -translate-x-1/2 -translate-y-1/2 bg-white" />
+        </span>
+      )}
+
       {code === "se" && (
-        <>
+        <span className="relative block h-full w-full bg-blue-700">
           <span className="absolute left-[32%] top-0 h-full w-1 bg-yellow-300" />
           <span className="absolute left-0 top-[42%] h-1 w-full bg-yellow-300" />
-        </>
+        </span>
       )}
+
       {code === "fi" && (
-        <>
+        <span className="relative block h-full w-full bg-white">
           <span className="absolute left-[32%] top-0 h-full w-1 bg-blue-700" />
           <span className="absolute left-0 top-[42%] h-1 w-full bg-blue-700" />
-        </>
+        </span>
       )}
     </span>
   );
@@ -449,6 +459,7 @@ function applyCountryModel(countryId: string) {
 
 function updateSub(categoryId: string, subId: string, newValue: number) {
   setSelectedCountryId(null);
+
   setCategories((prev) => {
     const currentCategory = prev.find((cat) => cat.id === categoryId);
     const currentSub = currentCategory?.subs.find((sub) => sub.id === subId);
@@ -457,39 +468,40 @@ function updateSub(categoryId: string, subId: string, newValue: number) {
 
     const impactMap: Record<string, Record<string, number>> = {
       tax: {
-        market: -0.85,
-        admin: -0.45,
-        support: 0.55,
-        security: 0.1,
-        freedoms: -0.25,
+        market: -1.25,
+        admin: -0.65,
+        support: 0.65,
+        security: 0.15,
+        freedoms: -0.35,
       },
       support: {
-        tax: 0.5,
-        admin: -0.35,
-        market: -0.45,
-        security: 0.05,
+        tax: 0.7,
+        admin: -0.45,
+        market: -0.65,
+        security: 0.1,
+        freedoms: -0.15,
       },
       security: {
-        freedoms: -0.55,
-        admin: -0.2,
-        tax: 0.15,
+        freedoms: -0.75,
+        admin: -0.25,
+        tax: 0.2,
       },
       freedoms: {
-        security: -0.25,
-        market: 0.25,
-        admin: 0.15,
+        security: -0.3,
+        market: 0.3,
+        admin: 0.2,
       },
       market: {
-        tax: -0.35,
-        support: -0.25,
-        admin: 0.3,
-        freedoms: 0.15,
+        tax: -0.45,
+        support: -0.35,
+        admin: 0.4,
+        freedoms: 0.2,
       },
       admin: {
-        market: 0.55,
-        support: -0.25,
-        security: 0.15,
-        tax: -0.2,
+        market: 0.75,
+        support: -0.35,
+        security: 0.2,
+        tax: -0.3,
       },
     };
 
@@ -497,65 +509,72 @@ function updateSub(categoryId: string, subId: string, newValue: number) {
       ...cat,
       subs: cat.subs.map((sub) => {
         if (cat.id === categoryId && sub.id === subId) {
-          return {
-            ...sub,
-            value: newValue,
-          };
+          return { ...sub, value: newValue };
         }
 
         const influence = impactMap[categoryId]?.[cat.id] ?? 0;
 
-        if (influence === 0) {
-          return sub;
-        }
+        if (influence === 0) return sub;
 
         return {
           ...sub,
-          value: clamp(
-            Math.round(sub.value + delta * influence)
-          ),
+          value: clamp(Math.round(sub.value + delta * influence)),
         };
       }),
     }));
 
     return next.map((cat) => {
-      const taxScore =
-        average(
-          next
-            .find((c) => c.id === "tax")
-            ?.subs.map((s) => s.value) ?? [50]
-        );
+      const taxScore = average(
+        next.find((c) => c.id === "tax")?.subs.map((s) => s.value) ?? [50]
+      );
 
-      const supportScore =
-        average(
-          next
-            .find((c) => c.id === "support")
-            ?.subs.map((s) => s.value) ?? [50]
-        );
+      const supportScore = average(
+        next.find((c) => c.id === "support")?.subs.map((s) => s.value) ?? [50]
+      );
 
-      const securityScore =
-        average(
-          next
-            .find((c) => c.id === "security")
-            ?.subs.map((s) => s.value) ?? [50]
-        );
+      const securityScore = average(
+        next.find((c) => c.id === "security")?.subs.map((s) => s.value) ?? [50]
+      );
 
-      if (taxScore >= 75 && cat.id === "market") {
+      const isTaxExtreme = categoryId === "tax" && newValue >= 75;
+      const isTaxMax = categoryId === "tax" && newValue >= 100;
+
+      if ((isTaxMax || taxScore >= 90) && cat.id === "market") {
         return {
           ...cat,
           subs: cat.subs.map((sub) => ({
             ...sub,
-            value: Math.min(sub.value, 50),
+            value: Math.min(sub.value, sub.id === "competition" ? 20 : 25),
           })),
         };
       }
 
-      if (taxScore >= 100 && cat.id === "market") {
+      if ((isTaxExtreme || taxScore >= 75) && cat.id === "market") {
         return {
           ...cat,
           subs: cat.subs.map((sub) => ({
             ...sub,
-            value: Math.min(sub.value, 25),
+            value: Math.min(sub.value, sub.id === "competition" ? 35 : 40),
+          })),
+        };
+      }
+
+      if ((isTaxExtreme || taxScore >= 75) && cat.id === "admin") {
+        return {
+          ...cat,
+          subs: cat.subs.map((sub) => ({
+            ...sub,
+            value: Math.min(sub.value, 45),
+          })),
+        };
+      }
+
+      if ((isTaxExtreme || taxScore >= 75) && cat.id === "freedoms") {
+        return {
+          ...cat,
+          subs: cat.subs.map((sub) => ({
+            ...sub,
+            value: Math.min(sub.value, 55),
           })),
         };
       }
@@ -565,7 +584,7 @@ function updateSub(categoryId: string, subId: string, newValue: number) {
           ...cat,
           subs: cat.subs.map((sub) => ({
             ...sub,
-            value: Math.max(sub.value, 60),
+            value: Math.max(sub.value, 65),
           })),
         };
       }
@@ -575,7 +594,7 @@ function updateSub(categoryId: string, subId: string, newValue: number) {
           ...cat,
           subs: cat.subs.map((sub) => ({
             ...sub,
-            value: Math.min(sub.value, 50),
+            value: Math.min(sub.value, 45),
           })),
         };
       }
