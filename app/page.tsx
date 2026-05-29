@@ -3,7 +3,7 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import * as Slider from "@radix-ui/react-slider";
 import { motion } from "framer-motion";
-import { Download, Info } from "lucide-react";
+import { Download, Info, X } from "lucide-react";
 import { toPng } from "html-to-image";
 import { useMemo, useRef, useState } from "react";
 import {
@@ -85,55 +85,55 @@ const impactDocumentation = [
     source: "Contribution publique",
     target: "Économie productive",
     coefficient: "-1.25",
-    example: "+25 points → -31 points",
+    example: "+25 → -31",
   },
   {
     source: "Contribution publique",
     target: "Simplicité administrative",
     coefficient: "-0.65",
-    example: "+25 points → -16 points",
+    example: "+25 → -16",
   },
   {
     source: "Contribution publique",
     target: "Accompagnement social",
     coefficient: "+0.65",
-    example: "+25 points → +16 points",
+    example: "+25 → +16",
   },
   {
     source: "Accompagnement social",
     target: "Contribution publique",
     coefficient: "+0.70",
-    example: "+25 points → +18 points",
+    example: "+25 → +18",
   },
   {
     source: "Accompagnement social",
     target: "Économie productive",
     coefficient: "-0.65",
-    example: "+25 points → -16 points",
+    example: "+25 → -16",
   },
   {
     source: "Sécurité et justice",
     target: "Libertés civiles",
     coefficient: "-0.75",
-    example: "+25 points → -19 points",
+    example: "+25 → -19",
   },
   {
     source: "Libertés civiles",
     target: "Économie productive",
     coefficient: "+0.30",
-    example: "+25 points → +8 points",
+    example: "+25 → +8",
   },
   {
     source: "Économie productive",
     target: "Contribution publique",
     coefficient: "-0.45",
-    example: "+25 points → -11 points",
+    example: "+25 → -11",
   },
   {
     source: "Simplicité administrative",
     target: "Économie productive",
     coefficient: "+0.75",
-    example: "+25 points → +19 points",
+    example: "+25 → +19",
   },
 ];
 
@@ -303,7 +303,7 @@ function getClosestCountry(categories: typeof initialCategories) {
 
 function FlagIcon({ code }: { code: string }) {
   return (
-    <span className="relative inline-block h-4 w-6 overflow-hidden rounded-[2px] border border-black/10 bg-white">
+    <span className="relative inline-flex h-4 w-6 shrink-0 items-center justify-center overflow-hidden rounded-[2px] border border-black/10 bg-white">
       {code === "fr" && (
         <span className="grid h-full w-full grid-cols-3">
           <span className="bg-blue-700" />
@@ -320,7 +320,7 @@ function FlagIcon({ code }: { code: string }) {
       )}
 
       {code === "ch" && (
-        <span className="relative mx-auto block h-4 w-4 bg-red-600">
+        <span className="relative block h-4 w-4 bg-red-600">
           <span className="absolute left-1/2 top-1/2 h-2.5 w-1 -translate-x-1/2 -translate-y-1/2 bg-white" />
           <span className="absolute left-1/2 top-1/2 h-1 w-3 -translate-x-1/2 -translate-y-1/2 bg-white" />
         </span>
@@ -358,12 +358,12 @@ function StepSlider({
         max={100}
         step={25}
         onValueChange={([v]) => onChange(v)}
-        className="relative flex h-5 w-full touch-none items-center"
+        className="relative flex h-8 w-full touch-none items-center"
       >
         <Slider.Track className="relative h-2 w-full rounded-[6px] bg-neutral-200">
           <Slider.Range className="absolute h-full rounded-[6px] bg-black" />
         </Slider.Track>
-        <Slider.Thumb className="block h-5 w-5 rounded-[6px] bg-black shadow-md outline-none transition-transform hover:scale-110 focus:ring-4 focus:ring-black/10" />
+        <Slider.Thumb className="block h-6 w-6 rounded-[6px] bg-black shadow-md outline-none transition-transform active:scale-95 sm:h-5 sm:w-5" />
       </Slider.Root>
 
       <div className="relative flex justify-between px-1">
@@ -377,6 +377,31 @@ function StepSlider({
         ))}
       </div>
     </div>
+  );
+}
+
+function MobileDialogContent({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <Dialog.Portal>
+      <Dialog.Overlay className="fixed inset-0 z-40 bg-black/30" />
+      <Dialog.Content className="fixed inset-x-0 bottom-0 z-50 max-h-[88vh] overflow-y-auto rounded-t-[16px] bg-white p-5 shadow-2xl sm:left-1/2 sm:top-1/2 sm:bottom-auto sm:w-[92vw] sm:max-w-3xl sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-[6px] sm:p-6">
+        <div className="mb-4 flex items-start justify-between gap-4">
+          <Dialog.Title className="text-xl font-semibold sm:text-2xl">
+            {title}
+          </Dialog.Title>
+          <Dialog.Close className="rounded-[6px] p-2 text-neutral-500 transition hover:bg-neutral-100 hover:text-neutral-900">
+            <X size={18} />
+          </Dialog.Close>
+        </div>
+        {children}
+      </Dialog.Content>
+    </Dialog.Portal>
   );
 }
 
@@ -403,10 +428,7 @@ export default function Home() {
       categoryScores.find((c) => c.id === id)?.value ?? 50;
 
     return [
-      {
-        subject: "Liberté économique",
-        value: average([get("market"), get("freedoms")]),
-      },
+      { subject: "Liberté économique", value: get("market") },
       {
         subject: "Cadre",
         value: average([get("security"), get("admin")]),
@@ -427,7 +449,7 @@ export default function Home() {
   );
 
   const profileName = useMemo(() => {
-    const autonomy =
+    const economicFreedom =
       radarData.find((d) => d.subject === "Liberté économique")?.value ?? 50;
     const frame = radarData.find((d) => d.subject === "Cadre")?.value ?? 50;
     const protection =
@@ -435,7 +457,7 @@ export default function Home() {
 
     if (protection >= 70 && frame >= 60) return "Protecteur structuré";
     if (economicFreedom >= 70 && frame >= 60) return "Libéral cadré";
-if (economicFreedom >= 70 && frame < 45) return "Libéral dérégulé";
+    if (economicFreedom >= 70 && frame < 45) return "Libéral dérégulé";
     if (frame >= 75) return "Ordre renforcé";
     return "Équilibriste pragmatique";
   }, [radarData]);
@@ -573,7 +595,6 @@ if (economicFreedom >= 70 && frame < 45) return "Libéral dérégulé";
         }
 
         const influence = impactMap[categoryId]?.[cat.id] ?? 0;
-
         if (influence === 0) return sub;
 
         return {
@@ -630,52 +651,46 @@ if (economicFreedom >= 70 && frame < 45) return "Libéral dérégulé";
   return (
     <main className="min-h-screen bg-white text-neutral-950">
       {screen === "intro" && (
-        <section className="mx-auto flex min-h-screen max-w-5xl flex-col items-center justify-center px-6 text-center">
+        <section className="mx-auto flex min-h-[100svh] max-w-5xl flex-col items-center justify-center px-5 py-10 text-center sm:px-6">
           <motion.div
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
-            className="space-y-8"
+            className="w-full space-y-8"
           >
             <div className="space-y-4">
-              <p className="text-sm uppercase tracking-[0.35em] text-neutral-500">
+              <p className="text-xs uppercase tracking-[0.35em] text-neutral-500 sm:text-sm">
                 CIVIS
               </p>
-              <h1 className="text-5xl font-semibold tracking-tight md:text-7xl">
+              <h1 className="text-4xl font-semibold tracking-tight sm:text-6xl md:text-7xl">
                 Testez vos arbitrages.
               </h1>
-              <p className="mx-auto max-w-xl text-lg text-neutral-600">
+              <p className="mx-auto max-w-xl text-base leading-relaxed text-neutral-600 sm:text-lg">
                 Ajustez différents paramètres publics et observez l’équilibre
                 qu’ils produisent.
               </p>
             </div>
 
-            <div className="flex items-center justify-center gap-3">
+            <div className="mx-auto flex w-full max-w-sm flex-col gap-3 sm:max-w-none sm:flex-row sm:items-center sm:justify-center">
               <button
                 onClick={() => setScreen("game")}
-                className="rounded-[6px] bg-black px-6 py-3 text-white transition hover:bg-neutral-800"
+                className="w-full rounded-[6px] bg-black px-6 py-4 text-white transition hover:bg-neutral-800 sm:w-auto sm:py-3"
               >
                 Commencer
               </button>
 
               <Dialog.Root>
-                <Dialog.Trigger className="inline-flex items-center gap-2 rounded-[6px] border border-neutral-300 bg-white px-5 py-3 text-neutral-800 transition hover:bg-neutral-100">
+                <Dialog.Trigger className="w-full rounded-[6px] border border-neutral-300 bg-white px-5 py-4 text-neutral-800 transition hover:bg-neutral-100 sm:w-auto sm:py-3">
                   La démarche
                 </Dialog.Trigger>
 
-                <Dialog.Portal>
-                  <Dialog.Overlay className="fixed inset-0 bg-black/30" />
-                  <Dialog.Content className="fixed left-1/2 top-1/2 w-[90vw] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-[6px] bg-white p-6 shadow-xl">
-                    <Dialog.Title className="text-xl font-semibold">
-                      Comprendre Civis
-                    </Dialog.Title>
-                    <Dialog.Description className="mt-4 text-neutral-600">
-                      Chaque choix a des conséquences. Certaines sont visibles
-                      immédiatement, d’autres apparaissent plus tard. Civis
-                      visualise ces interactions et permet d’explorer différents
-                      équilibres à travers une série de paramètres liés entre eux.
-                    </Dialog.Description>
-                  </Dialog.Content>
-                </Dialog.Portal>
+                <MobileDialogContent title="Comprendre Civis">
+                  <Dialog.Description className="text-sm leading-relaxed text-neutral-600 sm:text-base">
+                    Chaque choix a des conséquences. Certaines sont visibles
+                    immédiatement, d’autres apparaissent plus tard. Civis
+                    visualise ces interactions et permet d’explorer différents
+                    équilibres à travers une série de paramètres liés entre eux.
+                  </Dialog.Description>
+                </MobileDialogContent>
               </Dialog.Root>
             </div>
           </motion.div>
@@ -683,53 +698,43 @@ if (economicFreedom >= 70 && frame < 45) return "Libéral dérégulé";
       )}
 
       {screen === "game" && (
-        <section className="mx-auto max-w-6xl px-6 py-10">
-          <div className="mb-8 flex items-end justify-between gap-6">
-            <div>
-              <p className="text-sm uppercase tracking-[0.3em] text-neutral-500">
-                CIVIS
-              </p>
-              <h1 className="mt-3 text-4xl font-semibold tracking-tight">
-                Ajustez les paramètres
-              </h1>
-              <p className="mt-3 max-w-xl text-neutral-600">
-                Chaque curseur peut influencer d’autres paramètres. L’équilibre
-                se construit par répercussion.
-              </p>
-            </div>
+        <section className="mx-auto max-w-6xl px-4 pb-28 pt-6 sm:px-6 sm:py-10">
+          <div className="sticky top-0 z-30 -mx-4 mb-5 border-b border-neutral-200 bg-white/95 px-4 py-4 backdrop-blur sm:static sm:mx-0 sm:mb-8 sm:border-0 sm:bg-transparent sm:px-0 sm:py-0">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p className="text-xs uppercase tracking-[0.3em] text-neutral-500 sm:text-sm">
+                  CIVIS
+                </p>
+                <h1 className="mt-2 text-3xl font-semibold tracking-tight sm:mt-3 sm:text-4xl">
+                  Ajustez les paramètres
+                </h1>
+                <p className="mt-2 max-w-xl text-sm leading-relaxed text-neutral-600 sm:mt-3 sm:text-base">
+                  Chaque curseur peut influencer d’autres paramètres.
+                </p>
+              </div>
 
-            <div className="flex items-center gap-3">
-              <Dialog.Root>
-                <Dialog.Trigger className="inline-flex items-center gap-2 rounded-[6px] border border-neutral-300 bg-white px-5 py-3 text-neutral-800 transition hover:bg-neutral-100">
-                  <Info size={16} />
-                  Comment ça marche
-                </Dialog.Trigger>
+              <div className="grid grid-cols-2 gap-2 sm:flex sm:items-center sm:gap-3">
+                <Dialog.Root>
+                  <Dialog.Trigger className="inline-flex items-center justify-center gap-2 rounded-[6px] border border-neutral-300 bg-white px-4 py-3 text-sm text-neutral-800 transition hover:bg-neutral-100 sm:px-5">
+                    <Info size={16} />
+                    Comment
+                  </Dialog.Trigger>
 
-                <Dialog.Portal>
-                  <Dialog.Overlay className="fixed inset-0 bg-black/30" />
-                  <Dialog.Content className="fixed left-1/2 top-1/2 max-h-[85vh] w-[92vw] max-w-3xl -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-[6px] bg-white p-6 shadow-xl">
-                    <Dialog.Title className="text-2xl font-semibold">
-                      Comment fonctionne Civis
-                    </Dialog.Title>
-
-                    <Dialog.Description className="mt-3 text-neutral-600">
+                  <MobileDialogContent title="Comment fonctionne Civis">
+                    <Dialog.Description className="text-sm leading-relaxed text-neutral-600 sm:text-base">
                       Civis est une simulation volontairement simplifiée. Elle ne
                       cherche pas à prédire précisément le réel, mais à rendre
                       visibles les répercussions possibles d’un choix politique
                       sur d’autres équilibres.
                     </Dialog.Description>
 
-                    <div className="mt-6 overflow-hidden rounded-[6px] border border-neutral-200">
-                      <table className="w-full border-collapse text-left text-sm">
+                    <div className="mt-5 overflow-x-auto rounded-[6px] border border-neutral-200">
+                      <table className="min-w-[660px] w-full border-collapse text-left text-sm">
                         <thead className="bg-neutral-100 text-neutral-600">
                           <tr>
-                            <th className="p-3 font-medium">
-                              Paramètre modifié
-                            </th>
-                            <th className="p-3 font-medium">
-                              Paramètre impacté
-                            </th>
-                            <th className="p-3 font-medium">Coefficient</th>
+                            <th className="p-3 font-medium">Modifié</th>
+                            <th className="p-3 font-medium">Impacté</th>
+                            <th className="p-3 font-medium">Coef.</th>
                             <th className="p-3 font-medium">Exemple</th>
                           </tr>
                         </thead>
@@ -755,54 +760,53 @@ if (economicFreedom >= 70 && frame < 45) return "Libéral dérégulé";
                       </table>
                     </div>
 
-                    <div className="mt-6 rounded-[6px] bg-neutral-100 p-4 text-sm text-neutral-700">
-                      Cette expérience sert surtout à rappeler que chaque
-                      décision politique est un arbitrage. Elle peut améliorer
-                      un aspect du système tout en fragilisant autre chose. Les
-                      modèles qui promettent un équilibre parfait doivent donc
-                      être regardés avec prudence. Choisir une direction
-                      politique, c’est accepter des priorités, des limites et
-                      des coûts.
+                    <div className="mt-5 rounded-[6px] bg-neutral-100 p-4 text-sm leading-relaxed text-neutral-700">
+                      Chaque décision politique est un arbitrage. Elle peut
+                      améliorer un aspect du système tout en fragilisant autre
+                      chose. Les modèles qui promettent un équilibre parfait
+                      doivent donc être regardés avec prudence.
                     </div>
-                  </Dialog.Content>
-                </Dialog.Portal>
-              </Dialog.Root>
+                  </MobileDialogContent>
+                </Dialog.Root>
 
-              <button
-                onClick={() => setScreen("result")}
-                className="rounded-[6px] bg-black px-5 py-3 text-white transition hover:bg-neutral-800"
-              >
-                Voir le résultat
-              </button>
+                <button
+                  onClick={() => setScreen("result")}
+                  className="rounded-[6px] bg-black px-4 py-3 text-sm text-white transition hover:bg-neutral-800 sm:px-5"
+                >
+                  Résultat
+                </button>
+              </div>
             </div>
           </div>
 
-          <div className="mb-6 flex flex-wrap gap-2">
-            {countryModels.map((country) => {
-              const isSelected = selectedCountryId === country.id;
-              const isClosest =
-                !selectedCountryId &&
-                closestCountry.id === country.id &&
-                closestCountry.distance <= 6;
+          <div className="-mx-4 mb-5 overflow-x-auto px-4 sm:mx-0 sm:mb-6 sm:px-0">
+            <div className="flex min-w-max gap-2">
+              {countryModels.map((country) => {
+                const isSelected = selectedCountryId === country.id;
+                const isClosest =
+                  !selectedCountryId &&
+                  closestCountry.id === country.id &&
+                  closestCountry.distance <= 6;
 
-              return (
-                <button
-                  key={country.id}
-                  onClick={() => applyCountryModel(country.id)}
-                  className={`inline-flex items-center gap-2 rounded-[6px] border px-3 py-2 text-sm transition ${
-                    isSelected || isClosest
-                      ? "border-black bg-black text-white"
-                      : "border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-100"
-                  }`}
-                >
-                  <FlagIcon code={country.flag} />
-                  {country.name}
-                </button>
-              );
-            })}
+                return (
+                  <button
+                    key={country.id}
+                    onClick={() => applyCountryModel(country.id)}
+                    className={`inline-flex items-center gap-2 rounded-[6px] border px-3 py-2 text-sm transition ${
+                      isSelected || isClosest
+                        ? "border-black bg-black text-white"
+                        : "border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-100"
+                    }`}
+                  >
+                    <FlagIcon code={country.flag} />
+                    {country.name}
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
-          <div className="grid gap-3 md:grid-cols-2">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {categories.flatMap((cat) =>
               cat.subs.map((sub) => (
                 <motion.div
@@ -811,9 +815,9 @@ if (economicFreedom >= 70 && frame < 45) return "Libéral dérégulé";
                   className="rounded-[6px] border border-neutral-200 bg-white p-4 shadow-sm"
                 >
                   <div className="mb-4 flex items-start justify-between gap-4">
-                    <div>
+                    <div className="min-w-0">
                       <h2 className="text-sm font-semibold">{sub.name}</h2>
-                      <p className="mt-1 text-xs text-neutral-500">
+                      <p className="mt-1 truncate text-xs text-neutral-500">
                         {cat.name}
                       </p>
                     </div>
@@ -831,37 +835,48 @@ if (economicFreedom >= 70 && frame < 45) return "Libéral dérégulé";
               ))
             )}
           </div>
+
+          <div className="fixed inset-x-0 bottom-0 z-40 border-t border-neutral-200 bg-white/95 p-4 backdrop-blur sm:hidden">
+            <button
+              onClick={() => setScreen("result")}
+              className="w-full rounded-[6px] bg-black px-5 py-4 text-white"
+            >
+              Voir le résultat
+            </button>
+          </div>
         </section>
       )}
 
       {screen === "result" && (
-        <section className="mx-auto max-w-6xl px-6 py-10">
-          <div className="mb-8 flex items-end justify-between gap-6">
+        <section className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-10">
+          <div className="mb-6 flex flex-col gap-4 sm:mb-8 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <p className="text-sm uppercase tracking-[0.3em] text-neutral-500">
+              <p className="text-xs uppercase tracking-[0.3em] text-neutral-500 sm:text-sm">
                 Résultat
               </p>
-              <h1 className="mt-3 text-4xl font-semibold tracking-tight">
+              <h1 className="mt-2 text-3xl font-semibold tracking-tight sm:mt-3 sm:text-4xl">
                 Votre équilibre Civis
               </h1>
             </div>
 
             <button
               onClick={() => setScreen("game")}
-              className="rounded-[6px] border border-neutral-300 bg-white px-5 py-3 transition hover:bg-neutral-100"
+              className="w-full rounded-[6px] border border-neutral-300 bg-white px-5 py-3 transition hover:bg-neutral-100 sm:w-auto"
             >
               Modifier
             </button>
           </div>
 
-          <div className="grid gap-6 lg:grid-cols-[1fr_420px]">
-            <div className="rounded-[6px] border border-neutral-200 bg-white p-6 shadow-sm">
-              <h2 className="text-xl font-semibold">Radar d’équilibre</h2>
-              <div className="mt-6 h-[430px]">
+          <div className="grid gap-5 lg:grid-cols-[1fr_420px]">
+            <div className="rounded-[6px] border border-neutral-200 bg-white p-4 shadow-sm sm:p-6">
+              <h2 className="text-lg font-semibold sm:text-xl">
+                Radar d’équilibre
+              </h2>
+              <div className="mt-4 h-[300px] sm:mt-6 sm:h-[430px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <RadarChart data={radarData}>
                     <PolarGrid />
-                    <PolarAngleAxis dataKey="subject" />
+                    <PolarAngleAxis dataKey="subject" tick={{ fontSize: 11 }} />
                     <Radar
                       dataKey="value"
                       fill="#111"
@@ -873,33 +888,35 @@ if (economicFreedom >= 70 && frame < 45) return "Libéral dérégulé";
               </div>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               <div
                 ref={cardRef}
-                className="rounded-[6px] bg-gradient-to-br from-neutral-950 via-neutral-800 to-neutral-600 p-8 text-white shadow-xl"
+                className="rounded-[6px] bg-gradient-to-br from-neutral-950 via-neutral-800 to-neutral-600 p-6 text-white shadow-xl sm:p-8"
               >
-                <p className="text-sm uppercase tracking-[0.35em] text-white/60">
+                <p className="text-xs uppercase tracking-[0.35em] text-white/60 sm:text-sm">
                   CIVIS
                 </p>
-                <h2 className="mt-10 text-4xl font-semibold">
+                <h2 className="mt-8 text-3xl font-semibold sm:mt-10 sm:text-4xl">
                   {profileName}
                 </h2>
 
                 <div className="mt-4 inline-flex items-center gap-2 rounded-[6px] bg-white/10 px-3 py-2 text-sm text-white/80">
                   <FlagIcon code={closestCountry.flag} />
-                  Modèle le plus proche : {closestCountry.name}
+                  Proche : {closestCountry.name}
                 </div>
 
-                <p className="mt-5 text-lg text-white/75">
-                  Un modèle construit autour de compromis entre liberté économique,
-cadre, protection et responsabilité.
+                <p className="mt-5 text-base leading-relaxed text-white/75 sm:text-lg">
+                  Un modèle construit autour de compromis entre liberté
+                  économique, cadre, protection et responsabilité.
                 </p>
 
-                <div className="mt-10 grid grid-cols-2 gap-4">
+                <div className="mt-8 grid grid-cols-2 gap-4 sm:mt-10">
                   {radarData.slice(0, 4).map((item) => (
                     <div key={item.subject}>
-                      <p className="text-3xl font-semibold">{item.value}</p>
-                      <p className="text-sm text-white/60">
+                      <p className="text-2xl font-semibold sm:text-3xl">
+                        {item.value}
+                      </p>
+                      <p className="text-xs text-white/60 sm:text-sm">
                         {item.subject}
                       </p>
                     </div>
@@ -912,65 +929,54 @@ cadre, protection et responsabilité.
                   Comparer avec {closestCountry.name}
                 </Dialog.Trigger>
 
-                <Dialog.Portal>
-                  <Dialog.Overlay className="fixed inset-0 bg-black/30" />
-                  <Dialog.Content className="fixed left-1/2 top-1/2 max-h-[85vh] w-[92vw] max-w-3xl -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-[6px] bg-white p-6 shadow-xl">
-                    <Dialog.Title className="text-2xl font-semibold">
-                      Comparaison avec {closestCountry.name}
-                    </Dialog.Title>
+                <MobileDialogContent title={`Comparaison avec ${closestCountry.name}`}>
+                  <Dialog.Description className="text-sm leading-relaxed text-neutral-600 sm:text-base">
+                    Cette comparaison mesure l’écart moyen entre vos curseurs et
+                    le modèle simplifié du pays sélectionné.
+                  </Dialog.Description>
 
-                    <Dialog.Description className="mt-3 text-neutral-600">
-                      Cette comparaison mesure l’écart moyen entre vos curseurs
-                      et le modèle simplifié du pays sélectionné.
-                    </Dialog.Description>
+                  <div className="mt-5 overflow-x-auto rounded-[6px] border border-neutral-200">
+                    <table className="min-w-[620px] w-full border-collapse text-left text-sm">
+                      <thead className="bg-neutral-100 text-neutral-600">
+                        <tr>
+                          <th className="p-3 font-medium">Paramètre</th>
+                          <th className="p-3 font-medium">Votre modèle</th>
+                          <th className="p-3 font-medium">
+                            {closestCountry.name}
+                          </th>
+                          <th className="p-3 font-medium">Écart</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {categories.flatMap((cat) =>
+                          cat.subs.map((sub) => {
+                            const countryValue =
+                              closestCountry.values[
+                                sub.id as keyof typeof closestCountry.values
+                              ] ?? 50;
+                            const diff = Math.abs(sub.value - countryValue);
 
-                    <div className="mt-6 overflow-hidden rounded-[6px] border border-neutral-200">
-                      <table className="w-full border-collapse text-left text-sm">
-                        <thead className="bg-neutral-100 text-neutral-600">
-                          <tr>
-                            <th className="p-3 font-medium">Paramètre</th>
-                            <th className="p-3 font-medium">Votre modèle</th>
-                            <th className="p-3 font-medium">
-                              {closestCountry.name}
-                            </th>
-                            <th className="p-3 font-medium">Écart</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {categories.flatMap((cat) =>
-                            cat.subs.map((sub) => {
-                              const countryValue =
-                                closestCountry.values[
-                                  sub.id as keyof typeof closestCountry.values
-                                ] ?? 50;
-                              const diff = Math.abs(sub.value - countryValue);
-
-                              return (
-                                <tr
-                                  key={sub.id}
-                                  className="border-t border-neutral-200"
-                                >
-                                  <td className="p-3 font-medium">
-                                    {sub.name}
-                                  </td>
-                                  <td className="p-3 text-neutral-600">
-                                    {sub.value}
-                                  </td>
-                                  <td className="p-3 text-neutral-600">
-                                    {countryValue}
-                                  </td>
-                                  <td className="p-3 text-neutral-900">
-                                    {diff}
-                                  </td>
-                                </tr>
-                              );
-                            })
-                          )}
-                        </tbody>
-                      </table>
-                    </div>
-                  </Dialog.Content>
-                </Dialog.Portal>
+                            return (
+                              <tr
+                                key={sub.id}
+                                className="border-t border-neutral-200"
+                              >
+                                <td className="p-3 font-medium">{sub.name}</td>
+                                <td className="p-3 text-neutral-600">
+                                  {sub.value}
+                                </td>
+                                <td className="p-3 text-neutral-600">
+                                  {countryValue}
+                                </td>
+                                <td className="p-3 text-neutral-900">{diff}</td>
+                              </tr>
+                            );
+                          })
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </MobileDialogContent>
               </Dialog.Root>
 
               <button
