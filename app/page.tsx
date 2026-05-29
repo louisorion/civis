@@ -685,7 +685,7 @@ export default function Home() {
 
                 <MobileDialogContent title="Comprendre Civis">
                   <Dialog.Description className="text-sm leading-relaxed text-neutral-600 sm:text-base">
-                    Chaque choix a des conséquences. Certaines sont visibles
+                    Chaque choix politique a des conséquences. Certaines sont visibles
                     immédiatement, d’autres apparaissent plus tard. Civis
                     visualise ces interactions et permet d’explorer différents
                     équilibres à travers une série de paramètres liés entre eux.
@@ -802,7 +802,7 @@ export default function Home() {
               })}
             </div>
           </div>
-          
+
 
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {categories.flatMap((cat) =>
